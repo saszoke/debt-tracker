@@ -1,5 +1,5 @@
 <template>
-  <tabs-component />
+  <tabs-component/>
 </template>
 
 <script>

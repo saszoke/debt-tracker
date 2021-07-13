@@ -1,7 +1,10 @@
-<template >
-  <div max-height="500" class=" green d-flex flex-column align-center"><!-- <div :class="width"> -->
+<template>
+  <div class="green d-flex flex-column align-center" ><!-- <div :class="width"> -->
     
-    <v-tabs :vertical="isVertical" max-height="500" >
+
+
+    <v-tabs  show-arrows>
+
       <v-tab v-for="someone in ppl" :key="someone">
         <v-icon left>
           mdi-account
@@ -10,18 +13,20 @@
       </v-tab>
 
 
+
+
       <v-tab-item v-for="someone in ppl" :key="someone">
         <v-card flat :class="isVertical ? 'd-flex' : 'd-flex flex-column'">
           <v-img
             src="https://cdn.vuetifyjs.com/images/cards/house.jpg"
             class="white--text align-end"
             gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
-            :height="dynamicHeight"
-            
+            :height="dynamicTabStyle"
+
             :width="dynamicWidth"
           >
           </v-img> 
-          <v-expansion-panels>
+          <v-expansion-panels :style="dynamicStyle">
               <v-expansion-panel v-for="debt in debts" :key="debt.id">
                 <v-expansion-panel-header class="pa-5 grey--text" color="light-green lighten-5">
                   <div class="d-flex justify-space-between pa-2">
@@ -105,9 +110,9 @@ export default {
       switch (this.$vuetify.breakpoint.name) { //$vuetify.breakpoint.xs ? '' : 'too-big'
           case 'xs': return ''
           case 'sm': return ''
-          case 'md': return '200'
-          case 'lg': return '400'
-          case 'xl': return '600'
+          case 'md': return '400'
+          case 'lg': return '600'
+          case 'xl': return '800'
         }
         return ""
     },
@@ -121,6 +126,21 @@ export default {
           case 'xl': return '600'
         }
         return ""
+    },
+
+    dynamicStyle(){
+      // if (this.$vuetify.breakpoint.name == 'xs' || this.$vuetify.breakpoint.name == 'sm') return 'max-height: 50vh; overflow-y: auto'
+      return 'max-height: 65vh; overflow-y: auto'
+    },
+    dynamicTabStyle(){
+      switch (this.$vuetify.breakpoint.name) { //$vuetify.breakpoint.xs ? '' : 'too-big'
+          case 'xs': return ''
+          case 'sm': return ''
+          case 'md': return '65vh'
+          case 'lg': return '65vh'
+          case 'xl': return '65vh'
+        }
+      return 'max-height: 65vh'
     }
   },
 
@@ -129,9 +149,10 @@ export default {
 </script>
 
 <style>
-.too-big{
-  max-width: 50%;
-  margin: 0 auto;
-  border: 1px solid grey;
+#tabs{
+  max-height: 50vh;
+  overflow-y: hidden;
 }
+
+
 </style>
