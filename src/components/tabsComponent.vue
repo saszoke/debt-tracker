@@ -3,14 +3,15 @@
     
 
 
-    <v-tabs  show-arrows>
-
+    <v-tabs  show-arrows >
+      <v-btn @click="ppl.push('Marci')" class="mt-2">Add</v-btn>
       <v-tab v-for="someone in ppl" :key="someone">
         <v-icon left>
           mdi-account
         </v-icon>
         {{someone}}
       </v-tab>
+      
 
 
 
@@ -69,7 +70,7 @@
       </v-tab-item>
       
     </v-tabs>
-    <v-btn @click="ppl.push('Marci')" class="ma-10" :width="dynamicWidth /2">Add</v-btn>
+    
   </div>
 </template>
 
