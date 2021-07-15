@@ -1,12 +1,12 @@
 <template>
-  <div class="green d-flex flex-column align-center" ><!-- <div :class="width"> -->
+  <div class="d-flex flex-column align-center" ><!-- <div :class="width"> -->
     
 
 
     <v-tabs  show-arrows >
-      <v-btn @click="ppl.push('Marci')" class="mt-2">Add</v-btn>
+      
       <v-tab v-for="someone in ppl" :key="someone">
-        <v-icon left>
+        <v-icon left >
           mdi-account
         </v-icon>
         {{someone}}
@@ -26,6 +26,7 @@
 
             :width="dynamicWidth"
           >
+          <v-btn absolute top class="ma-5" @click="ppl.push('Marci')">New</v-btn>
           </v-img> 
           <v-expansion-panels :style="dynamicStyle">
               <v-expansion-panel v-for="debt in debts" :key="debt.id">
@@ -131,15 +132,15 @@ export default {
 
     dynamicStyle(){
       // if (this.$vuetify.breakpoint.name == 'xs' || this.$vuetify.breakpoint.name == 'sm') return 'max-height: 50vh; overflow-y: auto'
-      return 'max-height: 65vh; overflow-y: auto'
+      return 'max-height: 70vh; overflow-y: auto'
     },
     dynamicTabStyle(){
       switch (this.$vuetify.breakpoint.name) { //$vuetify.breakpoint.xs ? '' : 'too-big'
           case 'xs': return ''
           case 'sm': return ''
-          case 'md': return '65vh'
-          case 'lg': return '65vh'
-          case 'xl': return '65vh'
+          case 'md': return '70vh'
+          case 'lg': return '70vh'
+          case 'xl': return '70vh'
         }
       return 'max-height: 65vh'
     }
