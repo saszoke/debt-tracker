@@ -77,28 +77,20 @@
 </template>
 
 <script>
+
 export default {
   name: "tabsComponent",
 
-  data: () => ({
-    mylist: ["light-green lighten-1", "light-green lighten-2", "light-green lighten-3", "light-green lighten-4", "light-green lighten-5"],
-    ppl: ["Livi", "Kriszti", "Lali"],
-    debts: [
-      { id: 1, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
-      { id: 2, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
-      { id: 3, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
-      { id: 4, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
-      { id: 5, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
-      { id: 6, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
-      { id: 7, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
-      { id: 8, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
-      { id: 9, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
-      { id: 10, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
-    ],
-    model: 0,
-
-  }),
   computed: {
+
+    ppl(){
+      return this.$store.state.ppl;
+    },
+
+    debts(){
+      return this.$store.state.debts;
+    },
+
     isVertical () {
         switch (this.$vuetify.breakpoint.name) { //$vuetify.breakpoint.xs ? '' : 'too-big'
           case 'xs': return false
