@@ -2,7 +2,7 @@
   <v-app>
 
     <nav-component/>
-    <tabs-component/>
+    <tabs-component ref="tabsComp"/>
     <footer-component/>
   </v-app>
 </template>

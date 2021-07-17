@@ -5,7 +5,10 @@
         
         src="https://cdn.vuetifyjs.com/images/backgrounds/vbanner.jpg"
         >
-        <v-app-bar-nav-icon></v-app-bar-nav-icon>
+        
+        <v-btn icon @click="this.$refs.tabsComp.ppl.push('Marci')">
+            <v-icon>mdi-plus</v-icon>
+        </v-btn>
 
         <v-toolbar-title>Bank App</v-toolbar-title>
 
@@ -23,6 +26,7 @@ export default {
 
     name: "navComponent",
 
+    
     data: ()=>({
 
     }),

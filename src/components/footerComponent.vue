@@ -24,7 +24,7 @@
         </v-card-text>
 
         <v-card-text class="white--text pt-0">
-            Phasellus feugiat arcu sapien, et iaculis ipsum elementum sit amet. Mauris cursus commodo interdum. Praesent ut risus eget metus luctus accumsan id ultrices nunc. Sed at orci sed massa consectetur dignissim a sit amet dui. Duis commodo vitae velit et faucibus. Morbi vehicula lacinia malesuada. Nulla placerat augue vel ipsum ultrices, cursus iaculis dui sollicitudin. Vestibulum eu ipsum vel diam elementum tempor vel ut orci. Orci varius natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus.
+            Bank App helps you manage your money effectively. This piece of software is published on the MIT license. Lorem ipsum dolor sit amet consectetur adipisicing elit. Saepe incidunt labore corrupti officia rem minima enim necessitatibus nostrum consequuntur mollitia. Lorem ipsum dolor sit amet. Lorem ipsum dolor sit amet.
         </v-card-text>
 
         <v-divider></v-divider>

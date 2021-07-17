@@ -26,7 +26,8 @@
 
             :width="dynamicWidth"
           >
-          <v-btn absolute top class="ma-5" @click="ppl.push('Marci')">New</v-btn>
+          
+          <v-btn absolute bottom right class="ma-5" @click="debts.push({ id: 11, date: '03/25/2015', amount: 55555, info: 'Recently added' })">Add</v-btn>
           </v-img> 
           <v-expansion-panels :style="dynamicStyle">
               <v-expansion-panel v-for="debt in debts" :key="debt.id">
@@ -88,11 +89,11 @@ export default {
       { id: 3, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
       { id: 4, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
       { id: 5, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
-            { id: 1, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
-      { id: 2, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
-      { id: 3, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
-      { id: 4, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
-      { id: 5, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
+      { id: 6, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
+      { id: 7, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
+      { id: 8, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
+      { id: 9, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
+      { id: 10, date: "03/25/2015", amount: 10000, info: "Random information about debt" },
     ],
     model: 0,
 

@@ -7,14 +7,13 @@
         v-model="name"
         :error-messages="nameErrors"
         label="Username"
-        @input="$v.name.$touch()"
-        @blur="$v.name.$touch()"
     ></v-text-field>
     <v-text-field
         success
         type="password"
         class="white--text" 
         v-model="password"
+        :error-messages="passwordErrors"
         label="Password"
     ></v-text-field>
     
@@ -40,7 +39,7 @@
 
 <script>
     import { validationMixin } from 'vuelidate'
-    import { required, maxLength, email } from 'vuelidate/lib/validators'
+    import { required, maxLength} from 'vuelidate/lib/validators'
 
     export default {
         name: "Login",
@@ -49,13 +48,12 @@
 
         validations: {
         name: { required, maxLength: maxLength(10) },
-        email: { required, email }
+        password: { required }
         },
 
 
         data: () => ({
             name: '',
-            email: '',
             password: ''
         }),
 
@@ -67,11 +65,10 @@
             !this.$v.name.required && errors.push('Name is required.')
             return errors
         },
-        emailErrors () {
+        passwordErrors () {
             const errors = []
-            if (!this.$v.email.$dirty) return errors
-            !this.$v.email.email && errors.push('Must be valid e-mail')
-            !this.$v.email.required && errors.push('E-mail is required')
+            if (!this.$v.password.$dirty) return errors
+            !this.$v.password.required && errors.push('Password is required')
             return errors
         },
         },
@@ -79,6 +76,10 @@
         methods: {
         submit () {
             this.$v.$touch()
+            if (!this.$v.$invalid){
+
+                this.$router.push('/')
+            }
         }
         },
     }

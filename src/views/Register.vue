@@ -7,8 +7,7 @@
         v-model="name"
         :error-messages="nameErrors"
         label="Username"
-        @input="$v.name.$touch()"
-        @blur="$v.name.$touch()"
+
     ></v-text-field>
     <v-text-field
         success
@@ -16,14 +15,14 @@
         v-model="email"
         :error-messages="emailErrors"
         label="E-mail"
-        @input="$v.email.$touch()"
-        @blur="$v.email.$touch()"
+
     ></v-text-field>
     
     <v-text-field
         success
         type="password"
         class="white--text" 
+        :error-messages="passwordErrors"
         v-model="password"
         label="Password"
     ></v-text-field>
@@ -32,7 +31,8 @@
         success
         type="password"
         class="white--text" 
-        v-model="password"
+        :error-messages="confirmErrors"
+        v-model="confirm"
         label="Repeat Password"
     ></v-text-field>
     <v-btn
@@ -54,7 +54,7 @@
 
 <script>
     import { validationMixin } from 'vuelidate'
-    import { required, maxLength, email } from 'vuelidate/lib/validators'
+    import { required, maxLength, email, sameAs } from 'vuelidate/lib/validators'
 
     export default {
         name: "Register",
@@ -62,17 +62,23 @@
         mixins: [validationMixin],
 
         validations: {
-        name: { required, maxLength: maxLength(10) },
-        email: { required, email }
+            name: { required, maxLength: maxLength(10) },
+            email: { required, email },
+            password: { required },
+            confirm: { required, sameAsPassword: sameAs( function(){ return this.password }) }
         },
 
 
         data: () => ({
             name: '',
-            email: ''
+            email: '',
+            password: '',
+            confirm: ''
         }),
 
         computed: {
+
+        
         nameErrors () {
             const errors = []
             if (!this.$v.name.$dirty) return errors
@@ -87,11 +93,33 @@
             !this.$v.email.required && errors.push('E-mail is required')
             return errors
         },
+        passwordErrors () {
+            const errors = []
+            if (!this.$v.password.$dirty) return errors
+            !this.$v.password.required && errors.push('Password is required')
+            return errors
+        },
+        confirmErrors () {
+            const errors = []
+            if (!this.$v.confirm.$dirty) return errors
+            !this.$v.confirm.required && errors.push('Confirm password is required')
+            !this.$v.confirm.sameAsPassword && errors.push('Passwords must match')
+            return errors
+        },
         },
 
         methods: {
         submit () {
             this.$v.$touch()
+            
+            if (!this.$v.$invalid){
+                console.log('továbbít...' + this.$v.$invalid)
+                this.$router.push('/')
+            }
+            else{
+                console.log('nem továbbít sehova...')
+                console.log(this.$v)
+                }
         }
         },
     }
