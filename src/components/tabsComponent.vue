@@ -26,8 +26,71 @@
 
             :width="dynamicWidth"
           >
+              <v-dialog
+                v-model="dialog"
+                persistent
+                max-width="600px"
+              >
+                <template v-slot:activator="{ on, attrs }">
+                  <v-btn 
+                    v-bind="attrs"
+                    v-on="on"
+                    absolute 
+                    bottom 
+                    right 
+                    class="ma-5"
+                    >
+                    Add
+                  </v-btn>
+                </template>
+                <v-card>
+                  <v-card-title>
+                    <span class="text-h5">User Profile</span>
+                  </v-card-title>
+                  <v-card-text>
+                    <v-container>
+                      <v-row>
+                        
+                        <v-col cols="12">
+                          <v-text-field
+                            v-model="amount"
+                            label="Amount"
+                          ></v-text-field>
+                        </v-col>
+
+                        <v-col cols="12">
+                            <v-text-field
+                              v-model="information"
+                              label="Information"
+                              
+                            ></v-text-field>
+                          </v-col>
+                      </v-row>
+                    </v-container>
+                  </v-card-text>
+                  <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn
+                      color="blue darken-1"
+                      text
+                      @click="dialog = false"
+                    >
+                      Close
+                    </v-btn>
+                    <v-btn
+                      color="blue darken-1"
+                      text
+                      @click="function(){
+                        addNewDebt({'amount': amount, 'information':information});
+                        dialog = false 
+                      }"
+                    >
+                      Add
+                    </v-btn>
+                  </v-card-actions>
+                </v-card>
+              </v-dialog>
           
-          <v-btn absolute bottom right class="ma-5" @click="debts.push({ id: 11, date: '03/25/2015', amount: 55555, info: 'Recently added' })">Add</v-btn>
           </v-img> 
           <v-expansion-panels :style="dynamicStyle">
               <v-expansion-panel v-for="debt in debts" :key="debt.id">
@@ -77,9 +140,15 @@
 </template>
 
 <script>
-
+import {mapActions} from 'vuex';
 export default {
   name: "tabsComponent",
+
+  data: () => ({
+      dialog: false,
+      amount: 0,
+      information: ''
+    }),
 
   computed: {
 
@@ -140,6 +209,12 @@ export default {
   },
 
   watch: {},
+
+  methods: {
+    ...mapActions([
+      'addNewDebt'
+    ])
+  }
 };
 </script>
 

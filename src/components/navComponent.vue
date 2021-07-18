@@ -14,9 +14,9 @@
             max-width="600"
             >
             <template v-slot:activator="{ on, attrs }">
-            <v-btn icon v-bind="attrs" v-on="on">
-                <v-icon>mdi-plus</v-icon>
-            </v-btn>
+                <v-btn icon v-bind="attrs" v-on="on">
+                    <v-icon>mdi-plus</v-icon>
+                </v-btn>
             </template>
             <template v-slot:default="dialog">
             <v-card>
@@ -27,15 +27,17 @@
                 <v-card-text>
                     <v-text-field
                         success 
-                        v-model="name"
-                        :error-messages="nameErrors"
                         label="Nickname"
+                        v-model="inputName"
                     ></v-text-field>
                 </v-card-text>
                 <v-card-actions class="justify-end">
                 <v-btn
                     text
-                    @click="dialog.value = false ; addNewPerson"
+                    @click="()=>{
+                        addNewPerson(inputName);
+                        dialog.value = false
+                    }"
 
                 >Create</v-btn>
                 <v-btn
@@ -61,14 +63,21 @@
 </template>
 
 <script>
+import {mapActions} from 'vuex';
+
 export default {
 
     name: "navComponent",
 
-    methods: {
-        addNewPerson(){
-            console.log('hello')
+    data: ()=>{
+        return {
+            inputName: ''
         }
+    },
+    methods: {
+        ...mapActions([
+            'addNewPerson'
+        ])
     }
 
 }
