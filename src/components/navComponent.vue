@@ -13,8 +13,8 @@
             transition="dialog-bottom-transition"
             max-width="600"
             >
-            <template v-slot:activator="{ on, attrs }">
-                <v-btn icon v-bind="attrs" v-on="on">
+            <template v-slot:activator="{ on }">
+                <v-btn icon v-on="on">
                     <v-icon>mdi-plus</v-icon>
                 </v-btn>
             </template>
@@ -52,9 +52,14 @@
         <v-toolbar-title>Bank App</v-toolbar-title>
 
         <v-spacer></v-spacer>
-
-        <v-btn icon @click="$router.push('/login')">
+        <div>
+            Logged in as 
+            <span class="font-weight-bold">{{ loggedInUser }}</span>
+        </div>
+        <v-btn icon @click="signOut">
+            
             <v-icon>mdi-export</v-icon>
+            
         </v-btn>
         </v-toolbar>
 
@@ -64,6 +69,8 @@
 
 <script>
 import {mapActions} from 'vuex';
+import firebase from 'firebase/app';
+import "firebase/auth";
 
 export default {
 
@@ -71,13 +78,25 @@ export default {
 
     data: ()=>{
         return {
-            inputName: ''
+            inputName: '',
+            loggedInUser: ''
         }
     },
+
+    mounted(){
+        this.loggedInUser = firebase.auth().currentUser.email
+    },
+
     methods: {
         ...mapActions([
             'addNewPerson'
-        ])
+        ]),
+
+        async signOut(){
+            firebase.auth().signOut().then(()=>{
+                this.$router.replace({ name: 'Login'})
+            })
+        }
     }
 
 }

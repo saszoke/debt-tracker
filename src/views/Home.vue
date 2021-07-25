@@ -1,10 +1,9 @@
 <template>
-  <v-app>
-
+  <div>
     <nav-component/>
     <tabs-component ref="tabsComp"/>
     <footer-component/>
-  </v-app>
+  </div>
 </template>
 
 <script>

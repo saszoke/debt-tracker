@@ -31,9 +31,8 @@
                 persistent
                 max-width="600px"
               >
-                <template v-slot:activator="{ on, attrs }">
+                <template v-slot:activator="{ on }">
                   <v-btn 
-                    v-bind="attrs"
                     v-on="on"
                     absolute 
                     bottom 

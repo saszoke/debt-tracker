@@ -44,7 +44,9 @@
     >
         Register
     </v-btn>
-
+    <v-alert type="error" v-if="loginError" outlined style="max-width: 300px">
+        {{ loginError }}
+    </v-alert>
     </form>
 </v-sheet>
 </v-img>
@@ -53,8 +55,10 @@
 </template>
 
 <script>
-    import { validationMixin } from 'vuelidate'
-    import { required, maxLength, email, sameAs } from 'vuelidate/lib/validators'
+    import { validationMixin } from 'vuelidate';
+    import { required, email, sameAs } from 'vuelidate/lib/validators';
+    import firebase from 'firebase/app';
+    import "firebase/auth";
 
     export default {
         name: "Register",
@@ -62,7 +66,7 @@
         mixins: [validationMixin],
 
         validations: {
-            name: { required, maxLength: maxLength(10) },
+            name: { required },
             email: { required, email },
             password: { required },
             confirm: { required, sameAsPassword: sameAs( function(){ return this.password }) }
@@ -73,7 +77,8 @@
             name: '',
             email: '',
             password: '',
-            confirm: ''
+            confirm: '',
+            loginError: ''
         }),
 
         computed: {
@@ -82,7 +87,6 @@
         nameErrors () {
             const errors = []
             if (!this.$v.name.$dirty) return errors
-            !this.$v.name.maxLength && errors.push('Name must be at most 10 characters long')
             !this.$v.name.required && errors.push('Name is required.')
             return errors
         },
@@ -114,7 +118,11 @@
             
             if (!this.$v.$invalid){
                 console.log('továbbít...' + this.$v.$invalid)
-                this.$router.push('/')
+                firebase.auth().createUserWithEmailAndPassword(this.email, this.password).then(()=>{
+                    this.$router.push('/');
+                    //this.$router.replace({ name: "/" });
+                }).catch(error => this.loginError = error.message )
+                
             }
             else{
                 console.log('nem továbbít sehova...')

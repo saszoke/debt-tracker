@@ -1,7 +1,9 @@
 <template>
   <v-app>
     <v-main>
-      <router-view />
+      <!-- <v-container> kell ez? -->
+        <router-view />
+      <!-- </v-container> -->
     </v-main>
   </v-app>
 </template>

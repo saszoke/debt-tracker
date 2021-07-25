@@ -4,9 +4,9 @@
 <form>
     <v-text-field
         success 
-        v-model="name"
+        v-model="email"
         :error-messages="nameErrors"
-        label="Username"
+        label="Email"
     ></v-text-field>
     <v-text-field
         success
@@ -30,7 +30,12 @@
     <div class="green--text caption mt-5">
         Do not have an account yet? <v-btn plain class="text-decoration-none" @click="$router.push('/register')">Register</v-btn>
     </div>
+    <v-alert type="error" v-if="loginError" outlined style="max-width: 300px">
+        {{ loginError }}
+    </v-alert>
+
     </form>
+
 </v-sheet>
 </v-img>
 
@@ -38,8 +43,10 @@
 </template>
 
 <script>
-    import { validationMixin } from 'vuelidate'
-    import { required, maxLength} from 'vuelidate/lib/validators'
+    import { validationMixin } from 'vuelidate';
+    import { required} from 'vuelidate/lib/validators';
+    import firebase from 'firebase/app';
+    import "firebase/auth";
 
     export default {
         name: "Login",
@@ -47,22 +54,22 @@
         mixins: [validationMixin],
 
         validations: {
-        name: { required, maxLength: maxLength(10) },
+        email: { required },
         password: { required }
         },
 
 
         data: () => ({
-            name: '',
-            password: ''
+            email: '',
+            password: '',
+            loginError: ''
         }),
 
         computed: {
         nameErrors () {
             const errors = []
-            if (!this.$v.name.$dirty) return errors
-            !this.$v.name.maxLength && errors.push('Name must be at most 10 characters long')
-            !this.$v.name.required && errors.push('Name is required.')
+            if (!this.$v.email.$dirty) return errors
+            !this.$v.email.required && errors.push('Name is required.')
             return errors
         },
         passwordErrors () {
@@ -77,8 +84,13 @@
         submit () {
             this.$v.$touch()
             if (!this.$v.$invalid){
-
-                this.$router.push('/')
+                firebase.auth().signInWithEmailAndPassword(this.email, this.password).then( data =>{
+                    console.log(data);
+                    this.$router.replace({ name: "Home" });
+                }).catch(err => {
+                    console.log(err)
+                    this.loginError = err.message
+                })
             }
         }
         },
