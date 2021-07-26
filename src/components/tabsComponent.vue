@@ -49,11 +49,12 @@
                   <v-card-text>
                     <v-container>
                       <v-row>
-                        
+
                         <v-col cols="12">
                           <v-text-field
                             v-model="amount"
                             label="Amount"
+                            :error-messages="amountErrors"
                           ></v-text-field>
                         </v-col>
 
@@ -61,9 +62,9 @@
                             <v-text-field
                               v-model="information"
                               label="Information"
-                              
                             ></v-text-field>
                           </v-col>
+
                       </v-row>
                     </v-container>
                   </v-card-text>
@@ -72,7 +73,12 @@
                     <v-btn
                       color="blue darken-1"
                       text
-                      @click="dialog = false"
+                      @click="function(){
+                        $v.$reset()
+                        dialog = false
+                        amount = ''
+                        information = ''
+                      }"
                     >
                       Close
                     </v-btn>
@@ -80,8 +86,15 @@
                       color="blue darken-1"
                       text
                       @click="function(){
-                        addNewDebt({'amount': amount, 'information':information});
-                        dialog = false 
+                        $v.$touch()
+                        if (!$v.$invalid){
+                          if (information.trim() == '') information = 'No information provided'
+                          addNewDebt({'on': triggerOn() ,'amount': amount, 'information':information});
+                          dialog = false
+                          amount = ''
+                          information = ''
+                          $v.$reset()
+                        }
                       }"
                     >
                       Add
@@ -92,11 +105,11 @@
           
           </v-img> 
           <v-expansion-panels :style="dynamicStyle">
-              <v-expansion-panel v-for="debt in debts" :key="debt.id">
+              <v-expansion-panel v-for="debt in debtsFiltered(someone)" :key="debt.id">
                 <v-expansion-panel-header class="pa-5 grey--text" color="light-green lighten-5">
                   <div class="d-flex justify-space-between pa-2">
                     <div class="mx-5 green--text font-weight-bold">{{ debt.amount }} HUF</div>
-                    <div class="mx-5">{{ debt.date }}</div>
+                    <div class="mx-5">{{ debt.date.toDate().getDate() + ' - ' + months[debt.date.toDate().getMonth()] + ' - '  + debt.date.toDate().getFullYear() }}</div>
                   </div>
                 </v-expansion-panel-header>
                 <v-expansion-panel-content>
@@ -125,7 +138,7 @@
                         </v-icon>
                       </v-btn>
                     </template>
-                    <span>{{debt.info}}</span>
+                    <span>{{debt.information}}</span>
                   </v-tooltip>
                 </v-expansion-panel-content>
               </v-expansion-panel>
@@ -140,16 +153,36 @@
 
 <script>
 import {mapActions} from 'vuex';
+import { validationMixin } from 'vuelidate';
+import { minValue, required } from 'vuelidate/lib/validators';
+
+
 export default {
   name: "tabsComponent",
+  mixins: [validationMixin],
 
+  validations: {
+    amount: { minValue: minValue(10), required  }
+    },
   data: () => ({
       dialog: false,
-      amount: 0,
-      information: ''
+      amount: '',
+      information: '',
+      triggerOn: function(){
+        return document.querySelector('.v-tab--active').textContent.trim()
+      },
+      months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
     }),
 
   computed: {
+
+    amountErrors () {
+        const errors = []
+        if (!this.$v.amount.$dirty) return errors
+        !this.$v.amount.minValue && errors.push('Amount is too low.')
+        !this.$v.amount.required && errors.push('Field cannot be empty.')
+        return errors
+    },
 
     ppl(){
       return this.$store.state.ppl;
@@ -180,17 +213,6 @@ export default {
         return ""
     },
 
-    dynamicHeight () {
-      switch (this.$vuetify.breakpoint.name) { //$vuetify.breakpoint.xs ? '' : 'too-big'
-          case 'xs': return ''
-          case 'sm': return ''
-          case 'md': return '200'
-          case 'lg': return '400'
-          case 'xl': return '600'
-        }
-        return ""
-    },
-
     dynamicStyle(){
       // if (this.$vuetify.breakpoint.name == 'xs' || this.$vuetify.breakpoint.name == 'sm') return 'max-height: 50vh; overflow-y: auto'
       return 'max-height: 70vh; overflow-y: auto'
@@ -212,7 +234,12 @@ export default {
   methods: {
     ...mapActions([
       'addNewDebt'
-    ])
+    ]),
+
+    debtsFiltered (someone) {
+        return this.$store.state.debts.filter(debt => debt.page == someone)
+      },
+    
   }
 };
 </script>

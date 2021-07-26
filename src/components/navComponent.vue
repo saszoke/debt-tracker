@@ -29,20 +29,29 @@
                         success 
                         label="Nickname"
                         v-model="inputName"
+                        :error-messages="inputNameErrors"
                     ></v-text-field>
                 </v-card-text>
                 <v-card-actions class="justify-end">
                 <v-btn
                     text
                     @click="()=>{
-                        addNewPerson(inputName);
-                        dialog.value = false
+
+                        $v.$touch()
+                        if (!$v.$invalid){
+                            addNewPerson({name: inputName});
+                            dialog.value = false
+                            $v.$reset()
+                        }
+
                     }"
 
                 >Create</v-btn>
                 <v-btn
                     text
-                    @click="dialog.value = false"
+                    @click="()=>{
+                        dialog.value = false
+                        $v.$reset()}"
                 >Close</v-btn>
                 </v-card-actions>
             </v-card>
@@ -71,11 +80,18 @@
 import {mapActions} from 'vuex';
 import firebase from 'firebase/app';
 import "firebase/auth";
+import { validationMixin } from 'vuelidate';
+import { required } from 'vuelidate/lib/validators';
+
 
 export default {
 
     name: "navComponent",
+    mixins: [validationMixin],
 
+    validations: {
+        inputName: { required  }
+    },
     data: ()=>{
         return {
             inputName: '',
@@ -85,11 +101,25 @@ export default {
 
     mounted(){
         this.loggedInUser = firebase.auth().currentUser.email
+        this.setupView()
+    },
+    created(){
+        
+    },
+
+    computed: {
+        inputNameErrors () {
+            const errors = []
+            if (!this.$v.inputName.$dirty) return errors
+            !this.$v.inputName.required && errors.push('Field name is mandatory.')
+            return errors
+        },
     },
 
     methods: {
         ...mapActions([
-            'addNewPerson'
+            'addNewPerson',
+            'setupView'
         ]),
 
         async signOut(){

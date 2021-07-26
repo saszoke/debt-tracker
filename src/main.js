@@ -4,6 +4,7 @@ import router from "./router";
 import store from "./store";
 import vuetify from "./plugins/vuetify";
 import firebase from "firebase/app";
+import 'firebase/firestore';
 
 
 var firebaseConfig = {
@@ -18,12 +19,16 @@ var firebaseConfig = {
 // Initialize Firebase
 firebase.initializeApp(firebaseConfig);
 
+const db = firebase.firestore();
+
+db.settings({ timestampsInSnapshots: true });
+
 
 Vue.config.productionTip = false;
 
   let app;
-  firebase.auth().onAuthStateChanged(user => {
-    console.log(user);
+  firebase.auth().onAuthStateChanged(() => {
+    // console.log(user);
     if (!app){
       app = new Vue({
         router,
@@ -35,3 +40,4 @@ Vue.config.productionTip = false;
   })
 
 
+export default db;
