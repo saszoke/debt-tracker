@@ -248,6 +248,8 @@ export default {
 
     completePayback(event){
       console.log(event.target.closest(".marker4ID").id)
+      let toBePassed = {'on': 'kriszti', 'id': event.target.closest(".marker4ID").id}
+      this.removeDebt(toBePassed)
     }
     
   }

@@ -30,7 +30,8 @@ export default new Vuex.Store({
       const baseRef = db.collection('usersdata').doc(firebase.auth().currentUser.uid).collection('pages')
       baseRef.where("name", "==", payload.on)
       .get().then((page)=>{
-        baseRef.doc(page.docs[0].id).collection('debts').add({ 'amount': payload.amount, 'information': payload.information, 'date': firebase.firestore.FieldValue.serverTimestamp()})
+        console.log(firebase.firestore.FieldValue.serverTimestamp())
+        baseRef.doc(page.docs[0].id).collection('debts').add({ 'amount': payload.amount, 'information': payload.information, 'date': new Date()})
         .then(() => {
           console.log('debt added to db')
         })
@@ -39,6 +40,7 @@ export default new Vuex.Store({
     },
 
     removeDebt: (state, payload) => {
+      console.log('remove debt called')
       const baseRef = db.collection('usersdata').doc(firebase.auth().currentUser.uid).collection('pages')
       baseRef.where("name", "==", payload.on)
       .get()
@@ -69,7 +71,7 @@ export default new Vuex.Store({
                     {...change.doc.data(), 'page': individualPersonChange.doc.data().name, 'uniqueIdentifier': change.doc.id }
                   )
                 } else if (change.type == 'removed'){
-                  console.log('a debt has been deleted')
+                  state.debts = state.debts.filter(element => element.uniqueIdentifier != change.doc.id)
                 }
               })
             })
