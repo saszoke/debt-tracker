@@ -112,14 +112,19 @@
                     <div class="mx-5">{{ debt.date.toDate().getDate() + ' - ' + months[debt.date.toDate().getMonth()] + ' - '  + debt.date.toDate().getFullYear() }}</div>
                   </div>
                 </v-expansion-panel-header>
-                <v-expansion-panel-content>
+                <v-expansion-panel-content :id="debt.uniqueIdentifier" class="marker4ID">
                   
                   <v-btn color="warning" dark class="ma-5">
                     <span class="mr-2">Payback (incomplete)</span>
                     <v-icon>mdi-cash</v-icon>
                   </v-btn>
 
-                  <v-btn color="success" dark class="ma-5">
+                  <v-btn 
+                  color="success" 
+                  dark 
+                  class="ma-5"
+                  @click="completePayback($event)"
+                  >
                     <span class="mr-2">Complete Payback</span>
                     <v-icon>mdi-cash-check</v-icon>
                   </v-btn>
@@ -233,12 +238,17 @@ export default {
 
   methods: {
     ...mapActions([
-      'addNewDebt'
+      'addNewDebt',
+      'removeDebt'
     ]),
 
     debtsFiltered (someone) {
         return this.$store.state.debts.filter(debt => debt.page == someone)
       },
+
+    completePayback(event){
+      console.log(event.target.closest(".marker4ID").id)
+    }
     
   }
 };

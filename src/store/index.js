@@ -5,21 +5,15 @@ import firebase from 'firebase/app';
 Vue.use(Vuex);
 
 export default new Vuex.Store({
+
   state: {
     ppl: [],
     debts: [],
 
+
   },
 
-  getters: {
-    getPersonsDebts(state){
-      // return () => {
-      //   return state.debts.filter(debt=>{debt.page == 'kriszti'})
-      // return state.debts
-      // }
-      return state.debts.filter(debt=>{debt.page == 'kriszti'})
-    }
-    },
+  getters: {},
 
   mutations: {
     addNewPerson: (state, payload) => {
@@ -32,59 +26,85 @@ export default new Vuex.Store({
       state.ppl.push(payload.name)
   },
     addNewDebt: (state, payload)=>{
-      state.debts.push(
-        { page: payload.on, id: 11, date: new firebase.firestore.Timestamp.fromDate(new Date()), amount: payload.amount, info: payload.information}
-      )
 
       const baseRef = db.collection('usersdata').doc(firebase.auth().currentUser.uid).collection('pages')
       baseRef.where("name", "==", payload.on)
       .get().then((page)=>{
         baseRef.doc(page.docs[0].id).collection('debts').add({ 'amount': payload.amount, 'information': payload.information, 'date': firebase.firestore.FieldValue.serverTimestamp()})
-        .then(() => console.log('debt added to db'))
+        .then(() => {
+          console.log('debt added to db')
+        })
         .catch((err)=> console.log(err))
       })
     },
-    setupView: (state) => {
+
+    removeDebt: (state, payload) => {
+      const baseRef = db.collection('usersdata').doc(firebase.auth().currentUser.uid).collection('pages')
+      baseRef.where("name", "==", payload.on)
+      .get()
+      .then((page)=>{
+        baseRef.doc(page.docs[0].id).collection('debts').doc(payload.id).delete();
+        // console.log(state)
+      })
+    },
+
+    realTimeSetupView: (state) => {
       state.ppl = []
       const baseRef = db.collection('usersdata').doc(firebase.auth().currentUser.uid).collection('pages')
-      baseRef.get()
-      .then(pages => {
-        pages.forEach((page)=> {
-          state.ppl.push(page.data().name)
-          baseRef.where("name", "==", page.data().name).get().then((szemely)=>{
-            baseRef.doc(szemely.docs[0].id).collection('debts').get()
-            .then((debts)=>{
-              debts.forEach((debt)=>{
-                state.debts.push(
-                  {...debt.data(), 'page': page.data().name }
-                )
-                
+      baseRef.onSnapshot(snap =>{
+        let personChanges = snap.docChanges();
+        personChanges.forEach(individualPersonChange=>{
+          if (individualPersonChange.type == 'added'){
+            state.ppl.push(individualPersonChange.doc.data().name)
+          } else if (individualPersonChange.type == 'removed'){
+            console.log('a page has been deleted TODO: get page identifier and remove from UI')
+          }
+
+          baseRef.where("name", "==", individualPersonChange.doc.data().name).get().then((szemely)=>{
+            baseRef.doc(szemely.docs[0].id).collection('debts').onSnapshot(snapshot => {
+              let changes = snapshot.docChanges();
+              changes.forEach(change => {
+                if (change.type == 'added'){
+                  state.debts.push(
+                    {...change.doc.data(), 'page': individualPersonChange.doc.data().name, 'uniqueIdentifier': change.doc.id }
+                  )
+                } else if (change.type == 'removed'){
+                  console.log('a debt has been deleted')
+                }
               })
-              
             })
-            
           })
         })
       })
-    }
-    
+  }
+
+
   },
   actions: {
     addNewPerson: (context, payload) => {
       setTimeout(function(){
           context.commit('addNewPerson', payload);
-      }, 100);
+      }, 100)
   },
 
     addNewDebt: (context, payload) => {
       setTimeout(function(){
+        console.log('before adding new debt')
         context.commit('addNewDebt', payload);
-      }, 100);
+      }, 500)
+        
+      
     },
 
     setupView: (context, payload) => {
       setTimeout(function(){
-        context.commit('setupView', payload);
+        context.commit('realTimeSetupView', payload);
+      }, 100);
+    },
+
+    removeDebt: (context, payload) => {
+      setTimeout(() => {
+        context.commit('removeDebt', payload);
       }, 100);
     }
   },
