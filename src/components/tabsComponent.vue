@@ -26,82 +26,212 @@
 
             :width="dynamicWidth"
           >
-              <v-dialog
+
+
+          <v-menu
+            bottom
+            left
+            transition="slide-x-transition"
+          >
+            <template v-slot:activator="{ on }">
+              <v-btn
+                dark
+                icon
+                v-on="on"
+                top
+                absolute
+                right
+              >
+                <v-icon>mdi-dots-vertical</v-icon>
+              </v-btn>
+            </template>
+
+            <v-list>
+              <v-list-item>
+                <v-dialog
                 v-model="dialog"
                 persistent
                 max-width="600px"
-              >
-                <template v-slot:activator="{ on }">
-                  <v-btn 
-                    v-on="on"
-                    absolute 
-                    bottom 
-                    right 
-                    class="ma-5"
-                    >
-                    Add
-                  </v-btn>
-                </template>
-                <v-card>
-                  <v-card-title>
-                    <span class="text-h5">User Profile</span>
-                  </v-card-title>
-                  <v-card-text>
-                    <v-container>
-                      <v-row>
+                >
+                  <template v-slot:activator="{ on }">
+                    <v-btn 
+                      v-on="on"
+                      width="100%"
+                      >
+                      Add New Debt
+                    </v-btn>
+                  </template>
+                  <v-card>
+                    <v-card-title>
+                      <span class="text-h5">User Profile</span>
+                    </v-card-title>
+                    <v-card-text>
+                      <v-container>
+                        <v-row>
 
-                        <v-col cols="12">
-                          <v-text-field
-                            v-model="amount"
-                            label="Amount"
-                            :error-messages="amountErrors"
-                          ></v-text-field>
-                        </v-col>
-
-                        <v-col cols="12">
+                          <v-col cols="12">
                             <v-text-field
-                              v-model="information"
-                              label="Information"
+                              v-model="amount"
+                              label="Amount"
+                              :error-messages="amountErrors"
                             ></v-text-field>
                           </v-col>
 
-                      </v-row>
-                    </v-container>
-                  </v-card-text>
-                  <v-card-actions>
-                    <v-spacer></v-spacer>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="function(){
-                        $v.$reset()
-                        dialog = false
-                        amount = ''
-                        information = ''
-                      }"
-                    >
-                      Close
-                    </v-btn>
-                    <v-btn
-                      color="blue darken-1"
-                      text
-                      @click="function(){
-                        $v.$touch()
-                        if (!$v.$invalid){
-                          if (information.trim() == '') information = 'No information provided'
-                          addNewDebt({'on': triggerOn() ,'amount': amount, 'information':information});
+                          <v-col cols="12">
+                              <v-text-field
+                                v-model="information"
+                                label="Information"
+                              ></v-text-field>
+                            </v-col>
+
+                        </v-row>
+                      </v-container>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="function(){
+                          $v.$reset()
                           dialog = false
                           amount = ''
                           information = ''
-                          $v.$reset()
-                        }
-                      }"
-                    >
-                      Add
-                    </v-btn>
-                  </v-card-actions>
-                </v-card>
-              </v-dialog>
+                        }"
+                      >
+                        Close
+                      </v-btn>
+                      <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="function(){
+                          $v.$touch()
+                          if (!$v.amount.$invalid){
+                            if (information.trim() == '') information = 'No information provided'
+                            addNewDebt({'on': triggerOn() ,'amount': amount, 'information':information});
+                            dialog = false
+                            amount = ''
+                            information = ''
+                            $v.$reset()
+                          }
+                        }"
+                      >
+                        Add
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              </v-list-item>
+
+              <v-list-item>
+                <v-dialog
+                  v-model="editDialog"
+                  max-width="600"
+                >
+                    <!-- <template v-slot:activator="{ on }">
+                        <v-btn icon v-on="on">
+                            <v-icon>mdi-plus</v-icon>
+                        </v-btn>
+                    </template>
+                    <template v-slot:default="dialog"> -->
+                    <v-card>
+                        <v-toolbar
+                        color="success"
+                        dark
+                        >Edit Person</v-toolbar>
+                        <v-card-text>
+                            <v-text-field
+                                success 
+                                label="Nickname"
+                                v-model="myinputname"
+                                :error-messages="myinputnameErrors"
+                            ></v-text-field>
+                        </v-card-text>
+                        <v-card-actions class="justify-end">
+                        <v-btn
+                            text
+                            color="green darken-1"
+                            @click="()=>{
+                                $v.$touch()
+                                if (!$v.myinputname.$invalid){
+                                    editPerson({on: triggerOn(), newName: myinputname});
+                                    editDialog = false
+                                    myinputname = ''
+                                    $v.$reset()
+                                }
+
+                            }"
+
+                        >Apply</v-btn>
+                        <v-btn
+                            text
+                            @click="()=>{
+                                editDialog = false
+                                myinputname = ''
+                                $v.$reset()}"
+                        >Close</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                    <!-- </template> -->
+                </v-dialog>
+                <v-btn
+                  width="100%"
+                  @click.stop="editDialog = true"
+                >Edit person</v-btn>
+              </v-list-item>
+
+              <v-list-item>
+                <v-dialog
+                  v-model="removeDialog"
+                  max-width="300"
+                >
+                  <v-card>
+                    <v-card-title class="text-h5">
+                      Remove person card?
+                    </v-card-title>
+
+                    <v-card-text>
+                      Removing a person card results in losing all the related data to the person, ongoing debts included. Are you sure? 
+                    </v-card-text>
+
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+
+                      <v-btn
+                        color="green darken-1"
+                        text
+                        @click="removeDialog = false"
+                      >
+                        No, cancel
+                      </v-btn>
+
+                      <v-btn
+                        color="red darken-1"
+                        text
+                        @click="()=>{
+                          removeDialog = false
+                          removePage({'on': triggerOn()});
+                        }"
+                      >
+                        Yes, go ahead
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              <v-btn
+                width="100%"
+                @click.stop="removeDialog = true"
+              >Remove person</v-btn>
+              </v-list-item>
+              <v-list-item>
+              <v-btn
+                width="100%"
+              >View Statistics</v-btn>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+
+
           
           </v-img> 
           <v-expansion-panels :style="dynamicStyle">
@@ -167,25 +297,41 @@ export default {
   mixins: [validationMixin],
 
   validations: {
-    amount: { minValue: minValue(10), required  }
+    amount: { minValue: minValue(10), required  },
+    myinputname: { required }
     },
+
   data: () => ({
       dialog: false,
       amount: '',
+      myinputname: '',
       information: '',
       triggerOn: function(){
         return document.querySelector('.v-tab--active').textContent.trim()
       },
-      months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"]
+      months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
+      removeDialog: false,
+      editDialog: false
     }),
 
   computed: {
+
+
 
     amountErrors () {
         const errors = []
         if (!this.$v.amount.$dirty) return errors
         !this.$v.amount.minValue && errors.push('Amount is too low.')
         !this.$v.amount.required && errors.push('Field cannot be empty.')
+        return errors
+    },
+
+    myinputnameErrors(){
+        const errors = []
+        if (!this.$v.myinputname.$dirty) return errors
+        !this.$v.myinputname.required && errors.push('Field cannot be empty.')
+        console.log(errors)
+        console.log(this.$v.myinputname)
         return errors
     },
 
@@ -239,7 +385,9 @@ export default {
   methods: {
     ...mapActions([
       'addNewDebt',
-      'removeDebt'
+      'removeDebt',
+      'removePage',
+      'editPerson'
     ]),
 
     debtsFiltered (someone) {
@@ -247,8 +395,7 @@ export default {
       },
 
     completePayback(event){
-      console.log(event.target.closest(".marker4ID").id)
-      let toBePassed = {'on': 'kriszti', 'id': event.target.closest(".marker4ID").id}
+      let toBePassed = {'on': this.triggerOn(), 'id': event.target.closest(".marker4ID").id}
       this.removeDebt(toBePassed)
     }
     

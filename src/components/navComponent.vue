@@ -41,6 +41,7 @@
                         if (!$v.$invalid){
                             addNewPerson({name: inputName});
                             dialog.value = false
+                            inputName = ''
                             $v.$reset()
                         }
 
@@ -51,6 +52,7 @@
                     text
                     @click="()=>{
                         dialog.value = false
+                        inputName = ''
                         $v.$reset()}"
                 >Close</v-btn>
                 </v-card-actions>
