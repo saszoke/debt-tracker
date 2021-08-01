@@ -5,11 +5,11 @@
 
     <v-tabs  show-arrows >
       
-      <v-tab v-for="someone in ppl" :key="someone">
+      <v-tab v-for="someone in ppl" :key="someone.tempUrl">
         <v-icon left >
           mdi-account
         </v-icon>
-        {{someone}}
+        {{someone.name}}
       </v-tab>
       
 
@@ -19,7 +19,7 @@
       <v-tab-item v-for="someone in ppl" :key="someone">
         <v-card flat :class="isVertical ? 'd-flex' : 'd-flex flex-column'">
           <v-img
-            src="https://cdn.vuetifyjs.com/images/cards/house.jpg"
+            :src="someone.tempUrl"
             class="white--text align-end"
             gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
             :height="dynamicTabStyle"
@@ -172,7 +172,6 @@
                         >Close</v-btn>
                         </v-card-actions>
                     </v-card>
-                    <!-- </template> -->
                 </v-dialog>
                 <v-btn
                   width="100%"
@@ -235,7 +234,7 @@
           
           </v-img> 
           <v-expansion-panels :style="dynamicStyle">
-              <v-expansion-panel v-for="debt in debtsFiltered(someone)" :key="debt.id">
+              <v-expansion-panel v-for="debt in debtsFiltered(someone.name)" :key="debt.id">
                 <v-expansion-panel-header class="pa-5 grey--text" color="light-green lighten-5">
                   <div class="d-flex justify-space-between pa-2">
                     <div class="mx-5 green--text font-weight-bold">{{ debt.amount }} HUF</div>
@@ -244,28 +243,65 @@
                 </v-expansion-panel-header>
                 <v-expansion-panel-content :id="debt.uniqueIdentifier" class="marker4ID">
                   
-                  <v-btn color="warning" dark class="ma-5">
+                  <v-btn 
+                    color="warning" 
+                    dark 
+                    class="ma-5"
+                    >
                     <span class="mr-2">Payback (incomplete)</span>
                     <v-icon>mdi-cash</v-icon>
                   </v-btn>
+                  <v-dialog
+                  v-model="paybackDialog"
+                  max-width="600"
+                  >
+                    <v-card>
+                        <v-toolbar
+                        color="success"
+                        dark
+                        >Complete Payback Confirmation</v-toolbar>
 
+                        <v-card-text class="mt-5">
+                          Are you sure the debt has been fully paid back?
+                        </v-card-text>
+
+                        <v-card-actions class="justify-end">
+                        <v-btn
+                            text
+                            color="green darken-1"
+                            @click="()=>{
+                                paybackDialog = false
+                                completePayback(eventObj)
+                            }"
+
+                        >Absolutely</v-btn>
+                        <v-btn
+                            text
+                            @click="()=>{
+                                paybackDialog = false
+                                }"
+                        >Not sure</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                  </v-dialog>
                   <v-btn 
                   color="success" 
                   dark 
                   class="ma-5"
-                  @click="completePayback($event)"
+                  @click="($event)=>{
+                      paybackDialog = true
+                      eventObj = $event
+                    }"
                   >
                     <span class="mr-2">Complete Payback</span>
                     <v-icon>mdi-cash-check</v-icon>
                   </v-btn>
                   <v-tooltip
-                    v-model="show"
                     top
                   >
-                    <template v-slot:activator="{ on, attrs }">
+                    <template v-slot:activator="{ on }">
                       <v-btn
                         icon
-                        v-bind="attrs"
                         v-on="on"
                       >
                         <v-icon color="grey lighten-1">
@@ -306,12 +342,14 @@ export default {
       amount: '',
       myinputname: '',
       information: '',
+      eventObj: {},
       triggerOn: function(){
         return document.querySelector('.v-tab--active').textContent.trim()
       },
       months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
       removeDialog: false,
-      editDialog: false
+      editDialog: false,
+      paybackDialog: false
     }),
 
   computed: {

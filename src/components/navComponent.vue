@@ -31,17 +31,31 @@
                         v-model="inputName"
                         :error-messages="inputNameErrors"
                     ></v-text-field>
+
+                    <v-file-input
+                        :rules="rules"
+                        v-model="filename"
+                        accept="image/*"
+                        placeholder="Pick an avatar"
+                        prepend-icon="mdi-camera"
+                        label="Avatar"
+                        @change="onFileSelected"
+                        ref="fileupload"
+                    ></v-file-input>
                 </v-card-text>
                 <v-card-actions class="justify-end">
                 <v-btn
                     text
-                    @click="()=>{
+                    @click="function(){
 
                         $v.$touch()
                         if (!$v.$invalid){
-                            addNewPerson({name: inputName});
+                            addNewPerson({name: inputName, img: imgData.name, tempUrl: picture});
                             dialog.value = false
                             inputName = ''
+                            imgData = null
+                            picture = null
+                            filename = null
                             $v.$reset()
                         }
 
@@ -50,9 +64,12 @@
                 >Create</v-btn>
                 <v-btn
                     text
-                    @click="()=>{
+                    @click="function(){
                         dialog.value = false
                         inputName = ''
+                        imgData = null
+                        picture = null
+                        filename = null
                         $v.$reset()}"
                 >Close</v-btn>
                 </v-card-actions>
@@ -97,7 +114,14 @@ export default {
     data: ()=>{
         return {
             inputName: '',
-            loggedInUser: ''
+            loggedInUser: '',
+            rules: [
+                    value => !value || value.size < 5000000 || 'Avatar size should be less than 5 MB!',
+                ],
+            imgData: {},
+            picture: null,
+            filename: null
+
         }
     },
 
@@ -128,8 +152,26 @@ export default {
             firebase.auth().signOut().then(()=>{
                 this.$router.replace({ name: 'Login'})
             })
+        },
+
+        onFileSelected(event){
+            console.log(this.$refs.fileupload)
+            console.log(this)
+            const storageRef = firebase.storage().ref(event.name).put(event)
+            console.log(event)
+            this.imgData = event
+
+            storageRef.on('state_changed', ()=>{
+                storageRef.snapshot.ref.getDownloadURL().then(url => {
+                    this.picture = url
+                    console.log(url)
+                })
+            })
         }
     }
 
 }
+
+// minél több debt dialogot nyitok, annál sötétebb a háttér
+
 </script>

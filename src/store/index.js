@@ -30,7 +30,7 @@ export default new Vuex.Store({
     },
     addNewPerson: (state, payload) => {
       const baseRef = db.collection('usersdata').doc(firebase.auth().currentUser.uid).collection('pages')
-      baseRef.add({'name' : payload.name})
+      baseRef.add({'name' : payload.name, 'imageName': payload.img, 'tempUrl': payload.tempUrl})
       .then(() => console.log('page added to db' + state))
       .catch((err)=> console.log(err))
 
@@ -82,19 +82,20 @@ export default new Vuex.Store({
         personChanges.forEach(individualPersonChange=>{
           // console.log(individualPersonChange.doc.)
           if (individualPersonChange.type == 'added'){
-            state.ppl.push(individualPersonChange.doc.data().name)
+            state.ppl.push({'name': individualPersonChange.doc.data().name , 'url': individualPersonChange.doc.data().imageName , 'tempUrl': individualPersonChange.doc.data().tempUrl})
           } 
           
           else if (individualPersonChange.type == 'removed'){
-            state.ppl.splice(state.ppl.indexOf(individualPersonChange.doc.data().name),1)
+            let pos = state.ppl.map(function(e) { return e.name; }).indexOf(individualPersonChange.doc.data().name);
+            state.ppl.splice(pos,1)
           } 
           else if (individualPersonChange.type == 'modified'){
             // state.ppl = state.ppl.filter(someone => someone.name == individualPersonChange.doc.data().name)
             
-            let indexToBeModified = state.ppl.indexOf(state.lastNameChange)//state.ppl.find(someone => someone.name == state.lastNameChange)
-            state.ppl[indexToBeModified] = individualPersonChange.doc.data().name
+            let indexToBeModified = state.ppl.map(function(e) { return e.name; }).indexOf(state.lastNameChange);//state.ppl.indexOf(state.lastNameChange)//state.ppl.find(someone => someone.name == state.lastNameChange)
+            state.ppl[indexToBeModified].name = individualPersonChange.doc.data().name
             console.log(state.ppl)
-            state.ppl.push('foo')  // WORKAROUND
+            state.ppl.push({'foo':'foo'})  // WORKAROUND
             state.ppl.pop()       // másképpen az UI nem érzékeli a state változást, érdekes, hogy logban látja
           }
 
@@ -115,8 +116,9 @@ export default new Vuex.Store({
                   
                 }
               })
+              console.log(state.debts)
             })
-          }).catch() // <<<--------------------------------------------------------------------------------------------------- TROUBLESHOOTNAK 
+          }).catch(err => console.log(err)) // <<<--------------------------------------------------------------------------------------------------- TROUBLESHOOTNAK 
         })
       })
   }
