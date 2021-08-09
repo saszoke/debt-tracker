@@ -234,27 +234,11 @@
           
           </v-img> 
           <v-expansion-panels :style="dynamicStyle">
-              <v-expansion-panel v-for="debt in debtsFiltered(someone.name)" :key="debt.id">
-                <v-expansion-panel-header class="pa-5 grey--text" color="light-green lighten-5">
-                  <div class="d-flex justify-space-between pa-2">
-                    <div class="mx-5 green--text font-weight-bold">{{ debt.amount }} HUF</div>
-                    <div class="mx-5">{{ debt.date.toDate().getDate() + ' - ' + months[debt.date.toDate().getMonth()] + ' - '  + debt.date.toDate().getFullYear() }}</div>
-                  </div>
-                </v-expansion-panel-header>
-                <v-expansion-panel-content :id="debt.uniqueIdentifier" class="marker4ID">
-                  
-                  <v-btn 
-                    color="warning" 
-                    dark 
-                    class="ma-5"
-                    >
-                    <span class="mr-2">Payback (incomplete)</span>
-                    <v-icon>mdi-cash</v-icon>
-                  </v-btn>
                   <v-dialog
-                  v-model="paybackDialog"
-                  max-width="600"
-                  >
+                    v-model="paybackDialog"
+                    max-width="600"
+                    ref="paybackDialog"
+                    >
                     <v-card>
                         <v-toolbar
                         color="success"
@@ -279,11 +263,83 @@
                             text
                             @click="()=>{
                                 paybackDialog = false
+                                removeDialogFromDOM()
                                 }"
                         >Not sure</v-btn>
                         </v-card-actions>
                     </v-card>
                   </v-dialog>
+                  <v-dialog
+                    v-model="incompletePaybackDialog"
+                    max-width="600"
+                    ref="incompletePaybackDialog"
+                    >
+                    <v-card>
+                        <v-toolbar
+                        color="success"
+                        dark
+                        >Payback Confirmation</v-toolbar>
+
+                        <v-card-text class="mt-5">
+                          Please enter the amount that has been paid back.
+                        </v-card-text>
+                        <v-text-field
+                              class="mx-5"
+                              v-model="incompletePaybackAmount"
+                              label="Amount"
+                              :error-messages="incompletePaybackAmountErrors"
+                        ></v-text-field>
+
+                        <v-card-actions class="justify-end">
+                        <v-btn
+                            text
+                            color="green darken-1"
+                            @click="()=>{
+                                
+                                $v.$touch()
+                                if (!$v.incompletePaybackAmount.$invalid){
+                                  incompletePaybackDialog = false
+                                  incompletePayback(eventObj)
+                                  incompletePaybackAmount = ''
+                                  $v.$reset()
+                                }
+                            }"
+
+                        >Confirm</v-btn>
+                        <v-btn
+                            text
+                            @click="()=>{
+                                incompletePaybackDialog = false
+                                incompletePaybackAmount = ''
+                                }"
+                        >Cancel</v-btn>
+                        </v-card-actions>
+                    </v-card>
+                  </v-dialog>
+
+              <v-expansion-panel v-for="debt in debtsFiltered(someone.name)" :key="debt.id">
+                <v-expansion-panel-header class="pa-5 grey--text" color="light-green lighten-5">
+                  <div class="d-flex justify-space-between pa-2">
+                    <div class="mx-5 green--text font-weight-bold marker4AMT" :mySecret="debt.uniqueIdentifier">{{ debt.amount }} HUF</div>
+                    <div class="mx-5">{{ debt.date.toDate().getDate() + ' - ' + months[debt.date.toDate().getMonth()] + ' - '  + debt.date.toDate().getFullYear() }}</div>
+                  </div>
+                </v-expansion-panel-header>
+                <v-expansion-panel-content :id="debt.uniqueIdentifier" class="marker4ID">
+                  
+                  <v-btn 
+                    color="warning" 
+                    dark 
+                    class="ma-5"
+                    @click="($event)=>{
+                        incompletePaybackDialog = true
+                        eventObj = $event
+                      }"
+                    >
+                    <span class="mr-2">Payback (incomplete)</span>
+                    <v-icon>mdi-cash</v-icon>
+                  </v-btn>
+                  
+                    
                   <v-btn 
                   color="success" 
                   dark 
@@ -334,13 +390,15 @@ export default {
 
   validations: {
     amount: { minValue: minValue(10), required  },
-    myinputname: { required }
+    myinputname: { required },
+    incompletePaybackAmount: { required }
     },
 
   data: () => ({
       dialog: false,
       amount: '',
       myinputname: '',
+      incompletePaybackAmount: '',
       information: '',
       eventObj: {},
       triggerOn: function(){
@@ -349,7 +407,8 @@ export default {
       months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
       removeDialog: false,
       editDialog: false,
-      paybackDialog: false
+      paybackDialog: false,
+      incompletePaybackDialog: false
     }),
 
   computed: {
@@ -370,6 +429,13 @@ export default {
         !this.$v.myinputname.required && errors.push('Field cannot be empty.')
         console.log(errors)
         console.log(this.$v.myinputname)
+        return errors
+    },
+
+    incompletePaybackAmountErrors(){
+        const errors = []
+        if (!this.$v.incompletePaybackAmount.$dirty) return errors
+        !this.$v.incompletePaybackAmount.required && errors.push('Field cannot be empty.')
         return errors
     },
 
@@ -425,7 +491,8 @@ export default {
       'addNewDebt',
       'removeDebt',
       'removePage',
-      'editPerson'
+      'editPerson',
+      'changeDebt'
     ]),
 
     debtsFiltered (someone) {
@@ -435,8 +502,13 @@ export default {
     completePayback(event){
       let toBePassed = {'on': this.triggerOn(), 'id': event.target.closest(".marker4ID").id}
       this.removeDebt(toBePassed)
+    },
+
+    incompletePayback(event){
+      let toBePassed = {'on': this.triggerOn(), 'id': event.target.closest(".marker4ID").id, 'amount': this.incompletePaybackAmount, 'current': document.querySelector(`[mySecret=${event.target.closest(".marker4ID").id}]`).innerHTML.split(" ")[0]}
+      this.changeDebt(toBePassed)
+      console.log(toBePassed)
     }
-    
   }
 };
 </script>

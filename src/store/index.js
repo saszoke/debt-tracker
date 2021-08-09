@@ -17,6 +17,20 @@ export default new Vuex.Store({
   getters: {},
 
   mutations: {
+    changeDebt: (state, payload)=>{
+      console.log('processing delete of ' + payload.on)
+      const baseRef = db.collection('usersdata').doc(firebase.auth().currentUser.uid).collection('pages')
+      baseRef.where("name", "==", payload.on)
+      .get()
+      .then((page)=>{
+        baseRef.doc(page.docs[0].id).collection('debts').doc(payload.id).set(
+          { amount: payload.current - payload.amount},
+          { merge: true }
+        );
+        let eredmeny = payload.current - payload.amount
+        console.log(payload.current + ' - ' + payload.amount +' = '+ eredmeny)
+      })
+    },
 
     removePage: (state,payload) => {
       console.log('processing delete of ' + payload.on)
@@ -103,6 +117,7 @@ export default new Vuex.Store({
             baseRef.doc(szemely.docs[0].id).collection('debts').onSnapshot(snapshot => {
               let changes = snapshot.docChanges();
               changes.forEach(change => {
+                console.log(change.type)
                 if (change.type == 'added'){
                   state.debts.push(
                     {...change.doc.data(), 'page': individualPersonChange.doc.data().name, 'uniqueIdentifier': change.doc.id }
@@ -112,11 +127,18 @@ export default new Vuex.Store({
                   // state.debts.splice(state.debts.indexOf(tempArray[0]),1)
 
                   state.debts = state.debts.filter(element => element.uniqueIdentifier != change.doc.id)
-
-                  
+                } else if (change.type == 'modified'){
+                  state.debts.forEach((el)=>{
+                    if (el.uniqueIdentifier == change.doc.id){
+                      console.log("OLD VALUE: " + el.amount)
+                      console.log("NEW VALUE: " + change.doc.data().amount)
+                      console.log("UNIQUE ID: " + change.doc.id)
+                      el.amount = change.doc.data().amount
+                    }
+                  })
                 }
               })
-              console.log(state.debts)
+              // console.log(state.debts)
             })
           }).catch(err => console.log(err)) // <<<--------------------------------------------------------------------------------------------------- TROUBLESHOOTNAK 
         })
@@ -163,6 +185,12 @@ export default new Vuex.Store({
     removePage: (context, payload) => {
       setTimeout(() => {
         context.commit('removePage', payload);
+      }, 100);
+    },
+
+    changeDebt: (context,payload) => {
+      setTimeout(() => {
+        context.commit('changeDebt', payload)
       }, 100);
     }
 
