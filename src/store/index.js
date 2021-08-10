@@ -58,7 +58,7 @@ export default new Vuex.Store({
           state.lastNameChange = payload.on
           // console.log('még az editben vagyunk '+ state.lastNameChange)
           baseRef.doc(page.docs[0].id).set(
-            { 'name': payload.newName }
+            { 'name': payload.newName, 'imageName': payload.img, 'tempUrl': payload.tempUrl}
           )
         }
       )
@@ -94,6 +94,7 @@ export default new Vuex.Store({
       baseRef.onSnapshot(snap =>{
         let personChanges = snap.docChanges();
         personChanges.forEach(individualPersonChange=>{
+          
           // console.log(individualPersonChange.doc.)
           if (individualPersonChange.type == 'added'){
             state.ppl.push({'name': individualPersonChange.doc.data().name , 'url': individualPersonChange.doc.data().imageName , 'tempUrl': individualPersonChange.doc.data().tempUrl})
@@ -105,9 +106,11 @@ export default new Vuex.Store({
           } 
           else if (individualPersonChange.type == 'modified'){
             // state.ppl = state.ppl.filter(someone => someone.name == individualPersonChange.doc.data().name)
-            
             let indexToBeModified = state.ppl.map(function(e) { return e.name; }).indexOf(state.lastNameChange);//state.ppl.indexOf(state.lastNameChange)//state.ppl.find(someone => someone.name == state.lastNameChange)
             state.ppl[indexToBeModified].name = individualPersonChange.doc.data().name
+            state.ppl[indexToBeModified].tempUrl = individualPersonChange.doc.data().tempUrl
+            state.ppl[indexToBeModified].url = individualPersonChange.doc.data().imageName
+            console.log('person változtatás........................', state.ppl[indexToBeModified])
             console.log(state.ppl)
             state.ppl.push({'foo':'foo'})  // WORKAROUND
             state.ppl.pop()       // másképpen az UI nem érzékeli a state változást, érdekes, hogy logban látja

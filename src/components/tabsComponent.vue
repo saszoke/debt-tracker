@@ -146,6 +146,16 @@
                                 v-model="myinputname"
                                 :error-messages="myinputnameErrors"
                             ></v-text-field>
+                            <v-file-input
+                                :rules="rules"
+                                v-model="filename"
+                                accept="image/*"
+                                placeholder="Pick an avatar"
+                                prepend-icon="mdi-camera"
+                                label="Avatar"
+                                @change="onFileSelected"
+                                ref="fileupload"
+                            ></v-file-input>
                         </v-card-text>
                         <v-card-actions class="justify-end">
                         <v-btn
@@ -154,9 +164,12 @@
                             @click="()=>{
                                 $v.$touch()
                                 if (!$v.myinputname.$invalid){
-                                    editPerson({on: triggerOn(), newName: myinputname});
+                                    editPerson({on: triggerOn(), newName: myinputname, img: imgData.name, tempUrl: picture});
                                     editDialog = false
                                     myinputname = ''
+                                    imgData = null
+                                    picture = null
+                                    filename = null
                                     $v.$reset()
                                 }
 
@@ -168,6 +181,9 @@
                             @click="()=>{
                                 editDialog = false
                                 myinputname = ''
+                                imgData = null
+                                picture = null
+                                filename = null
                                 $v.$reset()}"
                         >Close</v-btn>
                         </v-card-actions>
@@ -382,7 +398,7 @@
 import {mapActions} from 'vuex';
 import { validationMixin } from 'vuelidate';
 import { minValue, required } from 'vuelidate/lib/validators';
-
+import firebase from 'firebase/app';
 
 export default {
   name: "tabsComponent",
@@ -408,7 +424,13 @@ export default {
       removeDialog: false,
       editDialog: false,
       paybackDialog: false,
-      incompletePaybackDialog: false
+      incompletePaybackDialog: false,
+      rules: [
+              value => !value || value.size < 5000000 || 'Avatar size should be less than 5 MB!',
+            ],
+      imgData: {},
+      picture: null,
+      filename: null
     }),
 
   computed: {
@@ -508,6 +530,21 @@ export default {
       let toBePassed = {'on': this.triggerOn(), 'id': event.target.closest(".marker4ID").id, 'amount': this.incompletePaybackAmount, 'current': document.querySelector(`[mySecret=${event.target.closest(".marker4ID").id}]`).innerHTML.split(" ")[0]}
       this.changeDebt(toBePassed)
       console.log(toBePassed)
+    },
+
+    onFileSelected(event){
+      console.log(this.$refs.fileupload)
+      console.log(this)
+      const storageRef = firebase.storage().ref(event.name).put(event)
+      console.log(event)
+      this.imgData = event
+
+      storageRef.on('state_changed', ()=>{
+          storageRef.snapshot.ref.getDownloadURL().then(url => {
+              this.picture = url
+              console.log(url)
+          })
+      })
     }
   }
 };
