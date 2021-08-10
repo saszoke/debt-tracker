@@ -8,17 +8,15 @@
         >
         
 
-
+                <v-btn icon @click="addDialog = true">
+                    <v-icon>mdi-plus</v-icon>
+                </v-btn>
         <v-dialog
             transition="dialog-bottom-transition"
             max-width="600"
+            v-model="addDialog"
             >
-            <template v-slot:activator="{ on }">
-                <v-btn icon v-on="on">
-                    <v-icon>mdi-plus</v-icon>
-                </v-btn>
-            </template>
-            <template v-slot:default="dialog">
+            
             <v-card>
                 <v-toolbar
                 color="success"
@@ -51,7 +49,7 @@
                         $v.$touch()
                         if (!$v.$invalid){
                             addNewPerson({name: inputName, img: imgData.name, tempUrl: picture});
-                            dialog.value = false
+                            addDialog = false
                             inputName = ''
                             imgData = null
                             picture = null
@@ -65,7 +63,7 @@
                 <v-btn
                     text
                     @click="function(){
-                        dialog.value = false
+                        addDialog = false
                         inputName = ''
                         imgData = null
                         picture = null
@@ -74,7 +72,6 @@
                 >Close</v-btn>
                 </v-card-actions>
             </v-card>
-            </template>
         </v-dialog>
 
         <v-toolbar-title>Bank App</v-toolbar-title>
@@ -113,6 +110,7 @@ export default {
     },
     data: ()=>{
         return {
+            addDialog: false,
             inputName: '',
             loggedInUser: '',
             rules: [

@@ -89,6 +89,7 @@ export default new Vuex.Store({
     },
 
     realTimeSetupView: (state) => {
+      // person addition bug after login reLogin times 
       state.ppl = []
       const baseRef = db.collection('usersdata').doc(firebase.auth().currentUser.uid).collection('pages')
       baseRef.onSnapshot(snap =>{
@@ -98,6 +99,7 @@ export default new Vuex.Store({
           // console.log(individualPersonChange.doc.)
           if (individualPersonChange.type == 'added'){
             state.ppl.push({'name': individualPersonChange.doc.data().name , 'url': individualPersonChange.doc.data().imageName , 'tempUrl': individualPersonChange.doc.data().tempUrl})
+            
           } 
           
           else if (individualPersonChange.type == 'removed'){
@@ -110,7 +112,6 @@ export default new Vuex.Store({
             state.ppl[indexToBeModified].name = individualPersonChange.doc.data().name
             state.ppl[indexToBeModified].tempUrl = individualPersonChange.doc.data().tempUrl
             state.ppl[indexToBeModified].url = individualPersonChange.doc.data().imageName
-            console.log('person változtatás........................', state.ppl[indexToBeModified])
             console.log(state.ppl)
             state.ppl.push({'foo':'foo'})  // WORKAROUND
             state.ppl.pop()       // másképpen az UI nem érzékeli a state változást, érdekes, hogy logban látja

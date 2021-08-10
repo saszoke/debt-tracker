@@ -48,154 +48,192 @@
 
             <v-list>
               <v-list-item>
-                <v-dialog
-                v-model="dialog"
-                persistent
-                max-width="600px"
-                >
-                  <template v-slot:activator="{ on }">
-                    <v-btn 
-                      v-on="on"
-                      width="100%"
-                      >
-                      Add New Debt
-                    </v-btn>
-                  </template>
-                  <v-card>
-                    <v-card-title>
-                      <span class="text-h5">User Profile</span>
-                    </v-card-title>
-                    <v-card-text>
-                      <v-container>
-                        <v-row>
-
-                          <v-col cols="12">
-                            <v-text-field
-                              v-model="amount"
-                              label="Amount"
-                              :error-messages="amountErrors"
-                            ></v-text-field>
-                          </v-col>
-
-                          <v-col cols="12">
-                              <v-text-field
-                                v-model="information"
-                                label="Information"
-                              ></v-text-field>
-                            </v-col>
-
-                        </v-row>
-                      </v-container>
-                    </v-card-text>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn
-                        color="blue darken-1"
-                        text
-                        @click="function(){
-                          $v.$reset()
-                          dialog = false
-                          amount = ''
-                          information = ''
-                        }"
-                      >
-                        Close
-                      </v-btn>
-                      <v-btn
-                        color="blue darken-1"
-                        text
-                        @click="function(){
-                          $v.$touch()
-                          if (!$v.amount.$invalid){
-                            if (information.trim() == '') information = 'No information provided'
-                            addNewDebt({'on': triggerOn() ,'amount': amount, 'information':information});
-                            dialog = false
-                            amount = ''
-                            information = ''
-                            $v.$reset()
-                          }
-                        }"
-                      >
-                        Add
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
+                <v-btn 
+                  @click="debtDialog = true"
+                  width="100%"
+                  >
+                  Add New Debt
+                </v-btn>
               </v-list-item>
 
               <v-list-item>
-                <v-dialog
-                  v-model="editDialog"
-                  max-width="600"
+                <v-btn
+                  width="100%"
+                  @click="editDialog = true"
+                >Edit person</v-btn>
+              </v-list-item>
+
+              <v-list-item>
+                
+              <v-btn
+                width="100%"
+                @click="removeDialog = true"
+              >Remove person</v-btn>
+              </v-list-item>
+              <v-list-item>
+              <v-btn
+                width="100%"
+                @click="testFunc"
+              >View Statistics</v-btn>
+              </v-list-item>
+            </v-list>
+          </v-menu>
+
+
+          
+          </v-img> 
+          <v-expansion-panels :style="dynamicStyle">
+
+            <!-- DIALOGS -->
+              <!-- PAYBACKDIALOG START-->
+              <v-dialog
+                v-model="paybackDialog"
+                max-width="600"
+                ref="paybackDialog"
                 >
-                    <!-- <template v-slot:activator="{ on }">
-                        <v-btn icon v-on="on">
-                            <v-icon>mdi-plus</v-icon>
-                        </v-btn>
-                    </template>
-                    <template v-slot:default="dialog"> -->
-                    <v-card>
-                        <v-toolbar
-                        color="success"
-                        dark
-                        >Edit Person</v-toolbar>
-                        <v-card-text>
-                            <v-text-field
-                                success 
-                                label="Nickname"
-                                v-model="myinputname"
-                                :error-messages="myinputnameErrors"
-                            ></v-text-field>
-                            <v-file-input
-                                :rules="rules"
-                                v-model="filename"
-                                accept="image/*"
-                                placeholder="Pick an avatar"
-                                prepend-icon="mdi-camera"
-                                label="Avatar"
-                                @change="onFileSelected"
-                                ref="fileupload"
-                            ></v-file-input>
-                        </v-card-text>
-                        <v-card-actions class="justify-end">
-                        <v-btn
-                            text
-                            color="green darken-1"
-                            @click="()=>{
-                                $v.$touch()
-                                if (!$v.myinputname.$invalid){
-                                    editPerson({on: triggerOn(), newName: myinputname, img: imgData.name, tempUrl: picture});
-                                    editDialog = false
-                                    myinputname = ''
-                                    imgData = null
-                                    picture = null
-                                    filename = null
-                                    $v.$reset()
-                                }
+                <v-card>
+                    <v-toolbar
+                    color="success"
+                    dark
+                    >Complete Payback Confirmation</v-toolbar>
 
+                    <v-card-text class="mt-5">
+                      Are you sure the debt has been fully paid back?
+                    </v-card-text>
+
+                    <v-card-actions class="justify-end">
+                    <v-btn
+                        text
+                        color="green darken-1"
+                        @click="()=>{
+                            paybackDialog = false
+                            completePayback(eventObj)
+                        }"
+
+                    >Absolutely</v-btn>
+                    <v-btn
+                        text
+                        @click="()=>{
+                            paybackDialog = false
+                            removeDialogFromDOM()
                             }"
+                    >Not sure</v-btn>
+                    </v-card-actions>
+                </v-card>
+              </v-dialog>
+              <!-- PAYBACKDIALOG END-->
 
-                        >Apply</v-btn>
-                        <v-btn
-                            text
-                            @click="()=>{
+              <!-- INCOMPLETEDIALOG START-->
+              <v-dialog
+                v-model="incompletePaybackDialog"
+                max-width="600"
+                ref="incompletePaybackDialog"
+                >
+                <v-card>
+                    <v-toolbar
+                    color="success"
+                    dark
+                    >Payback Confirmation</v-toolbar>
+
+                    <v-card-text class="mt-5">
+                      Please enter the amount that has been paid back.
+                    </v-card-text>
+                    <v-text-field
+                          class="mx-5"
+                          v-model="incompletePaybackAmount"
+                          label="Amount"
+                          :error-messages="incompletePaybackAmountErrors"
+                    ></v-text-field>
+
+                    <v-card-actions class="justify-end">
+                    <v-btn
+                        text
+                        color="green darken-1"
+                        @click="()=>{
+                            
+                            $v.$touch()
+                            if (!$v.incompletePaybackAmount.$invalid){
+                              incompletePaybackDialog = false
+                              incompletePayback(eventObj)
+                              incompletePaybackAmount = ''
+                              $v.$reset()
+                            }
+                        }"
+
+                    >Confirm</v-btn>
+                    <v-btn
+                        text
+                        @click="()=>{
+                            incompletePaybackDialog = false
+                            incompletePaybackAmount = ''
+                            }"
+                    >Cancel</v-btn>
+                    </v-card-actions>
+                </v-card>
+              </v-dialog>
+              <!-- INCOMPLETEDIALOG END-->
+
+              <!-- EDITDIALOG START-->
+              <v-dialog
+                v-model="editDialog"
+                max-width="600"
+              >
+
+                <v-card>
+                    <v-toolbar
+                    color="success"
+                    dark
+                    >Edit Person</v-toolbar>
+                    <v-card-text>
+                        <v-text-field
+                            success 
+                            label="Nickname"
+                            v-model="myinputname"
+                            :error-messages="myinputnameErrors"
+                        ></v-text-field>
+                        <v-file-input
+                            :rules="rules"
+                            v-model="filename"
+                            accept="image/*"
+                            placeholder="Pick an avatar"
+                            prepend-icon="mdi-camera"
+                            label="Avatar"
+                            @change="onFileSelected"
+                            ref="fileupload"
+                        ></v-file-input>
+                    </v-card-text>
+                    <v-card-actions class="justify-end">
+                    <v-btn
+                        text
+                        color="green darken-1"
+                        @click="()=>{
+                            $v.$touch()
+                            if (!$v.myinputname.$invalid){
+                                editPerson({on: triggerOn(), newName: myinputname, img: imgData.name, tempUrl: picture});
                                 editDialog = false
                                 myinputname = ''
                                 imgData = null
                                 picture = null
                                 filename = null
-                                $v.$reset()}"
-                        >Close</v-btn>
-                        </v-card-actions>
-                    </v-card>
-                </v-dialog>
-                <v-btn
-                  width="100%"
-                  @click.stop="editDialog = true"
-                >Edit person</v-btn>
-              </v-list-item>
-
-              <v-list-item>
+                                $v.$reset()
+                            }
+                        }"
+                    >Apply</v-btn>
+                    <v-btn
+                        text
+                        @click="()=>{
+                            editDialog = false
+                            myinputname = ''
+                            imgData = null
+                            picture = null
+                            filename = null
+                            $v.$reset()}"
+                    >Close</v-btn>
+                    </v-card-actions>
+                  </v-card>
+              </v-dialog>
+              <!-- EDITDIALOG END-->
+              <!-- REMOVEDIALOG START -->
                 <v-dialog
                   v-model="removeDialog"
                   max-width="300"
@@ -233,105 +271,76 @@
                     </v-card-actions>
                   </v-card>
                 </v-dialog>
-              <v-btn
-                width="100%"
-                @click.stop="removeDialog = true"
-              >Remove person</v-btn>
-              </v-list-item>
-              <v-list-item>
-              <v-btn
-                width="100%"
-              >View Statistics</v-btn>
-              </v-list-item>
-            </v-list>
-          </v-menu>
+              <!-- REMOVEDIALOG END -->
 
+              <!-- DEBTDIALOG START -->
+                <v-dialog
+                  v-model="debtDialog"
+                  persistent
+                  max-width="600px"
+                >
+                  <v-card>
+                    <v-card-title>
+                      <span class="text-h5">User Profile</span>
+                    </v-card-title>
+                    <v-card-text>
+                      <v-container>
+                        <v-row>
 
-          
-          </v-img> 
-          <v-expansion-panels :style="dynamicStyle">
-                  <v-dialog
-                    v-model="paybackDialog"
-                    max-width="600"
-                    ref="paybackDialog"
-                    >
-                    <v-card>
-                        <v-toolbar
-                        color="success"
-                        dark
-                        >Complete Payback Confirmation</v-toolbar>
-
-                        <v-card-text class="mt-5">
-                          Are you sure the debt has been fully paid back?
-                        </v-card-text>
-
-                        <v-card-actions class="justify-end">
-                        <v-btn
-                            text
-                            color="green darken-1"
-                            @click="()=>{
-                                paybackDialog = false
-                                completePayback(eventObj)
-                            }"
-
-                        >Absolutely</v-btn>
-                        <v-btn
-                            text
-                            @click="()=>{
-                                paybackDialog = false
-                                removeDialogFromDOM()
-                                }"
-                        >Not sure</v-btn>
-                        </v-card-actions>
-                    </v-card>
-                  </v-dialog>
-                  <v-dialog
-                    v-model="incompletePaybackDialog"
-                    max-width="600"
-                    ref="incompletePaybackDialog"
-                    >
-                    <v-card>
-                        <v-toolbar
-                        color="success"
-                        dark
-                        >Payback Confirmation</v-toolbar>
-
-                        <v-card-text class="mt-5">
-                          Please enter the amount that has been paid back.
-                        </v-card-text>
-                        <v-text-field
-                              class="mx-5"
-                              v-model="incompletePaybackAmount"
+                          <v-col cols="12">
+                            <v-text-field
+                              v-model="amount"
                               label="Amount"
-                              :error-messages="incompletePaybackAmountErrors"
-                        ></v-text-field>
+                              :error-messages="amountErrors"
+                            ></v-text-field>
+                          </v-col>
 
-                        <v-card-actions class="justify-end">
-                        <v-btn
-                            text
-                            color="green darken-1"
-                            @click="()=>{
-                                
-                                $v.$touch()
-                                if (!$v.incompletePaybackAmount.$invalid){
-                                  incompletePaybackDialog = false
-                                  incompletePayback(eventObj)
-                                  incompletePaybackAmount = ''
-                                  $v.$reset()
-                                }
-                            }"
+                          <v-col cols="12">
+                              <v-text-field
+                                v-model="information"
+                                label="Information"
+                              ></v-text-field>
+                            </v-col>
 
-                        >Confirm</v-btn>
-                        <v-btn
-                            text
-                            @click="()=>{
-                                incompletePaybackDialog = false
-                                incompletePaybackAmount = ''
-                                }"
-                        >Cancel</v-btn>
-                        </v-card-actions>
-                    </v-card>
-                  </v-dialog>
+                        </v-row>
+                      </v-container>
+                    </v-card-text>
+                    <v-card-actions>
+                      <v-spacer></v-spacer>
+                      <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="function(){
+                          $v.$reset()
+                          debtDialog = false
+                          amount = ''
+                          information = ''
+                        }"
+                      >
+                        Close
+                      </v-btn>
+                      <v-btn
+                        color="blue darken-1"
+                        text
+                        @click="function(){
+                          $v.$touch()
+                          if (!$v.amount.$invalid){
+                            if (information.trim() == '') information = 'No information provided'
+                            addNewDebt({'on': triggerOn() ,'amount': amount, 'information':information});
+                            debtDialog = false
+                            amount = ''
+                            information = ''
+                            $v.$reset()
+                          }
+                        }"
+                      >
+                        Add
+                      </v-btn>
+                    </v-card-actions>
+                  </v-card>
+                </v-dialog>
+              <!-- DEBTDIALOG END -->
+            <!-- DIALOGS END-->
 
               <v-expansion-panel v-for="debt in debtsFiltered(someone.name)" :key="debt.id">
                 <v-expansion-panel-header class="pa-5 grey--text" color="light-green lighten-5">
@@ -411,7 +420,7 @@ export default {
     },
 
   data: () => ({
-      dialog: false,
+      debtDialog: false,
       amount: '',
       myinputname: '',
       incompletePaybackAmount: '',
@@ -545,6 +554,9 @@ export default {
               console.log(url)
           })
       })
+    },
+
+    testFunc(){
     }
   }
 };
