@@ -37,8 +37,8 @@
                         placeholder="Pick an avatar"
                         prepend-icon="mdi-camera"
                         label="Avatar"
-                        @change="onFileSelected"
                         ref="fileupload"
+                        @change="imgData = $event"
                     ></v-file-input>
                 </v-card-text>
                 <v-card-actions class="justify-end">
@@ -48,12 +48,8 @@
 
                         $v.$touch()
                         if (!$v.$invalid){
-                            addNewPerson({name: inputName, img: imgData.name, tempUrl: picture});
-                            addDialog = false
-                            inputName = ''
-                            imgData = null
-                            picture = null
-                            filename = null
+                            fileUpload()
+                            
                             $v.$reset()
                         }
 
@@ -152,18 +148,24 @@ export default {
             })
         },
 
-        onFileSelected(event){
-            console.log(this.$refs.fileupload)
-            console.log(this)
-            const storageRef = firebase.storage().ref(event.name).put(event)
-            console.log(event)
-            this.imgData = event
+        fileUpload(){
+            const storageRef = firebase.storage().ref(this.imgData.name).put(this.imgData)
 
-            storageRef.on('state_changed', ()=>{
-                storageRef.snapshot.ref.getDownloadURL().then(url => {
+            storageRef.on('state_changed', (state)=>{
+                console.log('STATE CHANGED!!!!!')
+                console.log(state)
+                if (state.bytesTransferred === state.totalBytes){
+                    storageRef.snapshot.ref.getDownloadURL().then(url => {
                     this.picture = url
                     console.log(url)
+                    this.addNewPerson({name: this.inputName, img: this.imgData.name, tempUrl: this.picture});
+                    this.addDialog = false
+                    this.inputName = ''
+                    this.imgData = null
+                    this.picture = null
+                    this.filename = null
                 })
+                }
             })
         }
     }

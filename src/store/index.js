@@ -187,6 +187,7 @@ export default new Vuex.Store({
       }, 100);
     },
     removePage: (context, payload) => {
+      console.log(payload)
       setTimeout(() => {
         context.commit('removePage', payload);
       }, 100);

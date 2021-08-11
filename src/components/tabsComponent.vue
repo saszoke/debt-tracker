@@ -64,17 +64,17 @@
               </v-list-item>
 
               <v-list-item>
-                
-              <v-btn
-                width="100%"
-                @click="removeDialog = true"
-              >Remove person</v-btn>
+                <v-btn
+                  width="100%"
+                  @click="removeDialog = true"
+                >Remove person</v-btn>
               </v-list-item>
+
               <v-list-item>
-              <v-btn
-                width="100%"
-                @click="testFunc"
-              >View Statistics</v-btn>
+                <v-btn
+                  width="100%"
+                  @click="testFunc"
+                >View Statistics</v-btn>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -115,7 +115,6 @@
                         text
                         @click="()=>{
                             paybackDialog = false
-                            removeDialogFromDOM()
                             }"
                     >Not sure</v-btn>
                     </v-card-actions>
@@ -198,7 +197,7 @@
                             placeholder="Pick an avatar"
                             prepend-icon="mdi-camera"
                             label="Avatar"
-                            @change="onFileSelected"
+                            @change="imgData = $event"
                             ref="fileupload"
                         ></v-file-input>
                     </v-card-text>
@@ -209,12 +208,8 @@
                         @click="()=>{
                             $v.$touch()
                             if (!$v.myinputname.$invalid){
-                                editPerson({on: triggerOn(), newName: myinputname, img: imgData.name, tempUrl: picture});
-                                editDialog = false
-                                myinputname = ''
-                                imgData = null
-                                picture = null
-                                filename = null
+                                fileUpload()
+                                
                                 $v.$reset()
                             }
                         }"
@@ -233,6 +228,7 @@
                   </v-card>
               </v-dialog>
               <!-- EDITDIALOG END-->
+
               <!-- REMOVEDIALOG START -->
                 <v-dialog
                   v-model="removeDialog"
@@ -403,7 +399,7 @@
   </div>
 </template>
 
-<script>
+<script> // THE MORE PAGES YOU HAVE, THE DARKER DIALOGS BACKGROUND GET
 import {mapActions} from 'vuex';
 import { validationMixin } from 'vuelidate';
 import { minValue, required } from 'vuelidate/lib/validators';
@@ -541,22 +537,25 @@ export default {
       console.log(toBePassed)
     },
 
-    onFileSelected(event){
-      console.log(this.$refs.fileupload)
-      console.log(this)
-      const storageRef = firebase.storage().ref(event.name).put(event)
-      console.log(event)
-      this.imgData = event
+    fileUpload(){
+      const storageRef = firebase.storage().ref(this.imgData.name).put(this.imgData)
 
-      storageRef.on('state_changed', ()=>{
-          storageRef.snapshot.ref.getDownloadURL().then(url => {
+      storageRef.on('state_changed', (state)=>{
+          console.log('STATE CHANGED!!!!!')
+          console.log(state)
+          if (state.bytesTransferred === state.totalBytes){
+              storageRef.snapshot.ref.getDownloadURL().then(url => {
               this.picture = url
               console.log(url)
+              this.editPerson({on: this.triggerOn(), newName: this.myinputname, img: this.imgData.name, tempUrl: this.picture});
+              this.editDialog = false
+              this.myinputname = ''
+              this.imgData = null
+              this.picture = null
+              this.filename = null
           })
+          }
       })
-    },
-
-    testFunc(){
     }
   }
 };
