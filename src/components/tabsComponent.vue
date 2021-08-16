@@ -84,7 +84,66 @@
           </v-img> 
           <v-expansion-panels :style="dynamicStyle">
 
-            <!-- DIALOGS -->
+            
+
+              <v-expansion-panel v-for="debt in debtsFiltered(someone.name)" :key="debt.id">
+                <v-expansion-panel-header class="pa-5 grey--text" color="light-green lighten-5">
+                  <div class="d-flex justify-space-between pa-2">
+                    <div class="mx-5 green--text font-weight-bold marker4AMT" :mySecret="debt.uniqueIdentifier">{{ debt.amount }} HUF</div>
+                    <div class="mx-5">{{ debt.date.toDate().getDate() + ' - ' + months[debt.date.toDate().getMonth()] + ' - '  + debt.date.toDate().getFullYear() }}</div>
+                  </div>
+                </v-expansion-panel-header>
+                <v-expansion-panel-content :id="debt.uniqueIdentifier" class="marker4ID">
+                  
+                  <v-btn 
+                    color="warning" 
+                    dark 
+                    class="ma-5"
+                    @click="($event)=>{
+                        incompletePaybackDialog = true
+                        eventObj = $event
+                      }"
+                    >
+                    <span class="mr-2">Payback (incomplete)</span>
+                    <v-icon>mdi-cash</v-icon>
+                  </v-btn>
+                  
+                    
+                  <v-btn 
+                  color="success" 
+                  dark 
+                  class="ma-5"
+                  @click="($event)=>{
+                      paybackDialog = true
+                      eventObj = $event
+                    }"
+                  >
+                    <span class="mr-2">Complete Payback</span>
+                    <v-icon>mdi-cash-check</v-icon>
+                  </v-btn>
+                  <v-tooltip
+                    top
+                  >
+                    <template v-slot:activator="{ on }">
+                      <v-btn
+                        icon
+                        v-on="on"
+                      >
+                        <v-icon color="grey lighten-1">
+                          mdi-information
+                        </v-icon>
+                      </v-btn>
+                    </template>
+                    <span>{{debt.information}}</span>
+                  </v-tooltip>
+                </v-expansion-panel-content>
+              </v-expansion-panel>
+            </v-expansion-panels>
+        </v-card>
+      </v-tab-item>
+      
+    </v-tabs>
+    <!-- DIALOGS -->
               <!-- PAYBACKDIALOG START-->
               <v-dialog
                 v-model="paybackDialog"
@@ -337,65 +396,6 @@
                 </v-dialog>
               <!-- DEBTDIALOG END -->
             <!-- DIALOGS END-->
-
-              <v-expansion-panel v-for="debt in debtsFiltered(someone.name)" :key="debt.id">
-                <v-expansion-panel-header class="pa-5 grey--text" color="light-green lighten-5">
-                  <div class="d-flex justify-space-between pa-2">
-                    <div class="mx-5 green--text font-weight-bold marker4AMT" :mySecret="debt.uniqueIdentifier">{{ debt.amount }} HUF</div>
-                    <div class="mx-5">{{ debt.date.toDate().getDate() + ' - ' + months[debt.date.toDate().getMonth()] + ' - '  + debt.date.toDate().getFullYear() }}</div>
-                  </div>
-                </v-expansion-panel-header>
-                <v-expansion-panel-content :id="debt.uniqueIdentifier" class="marker4ID">
-                  
-                  <v-btn 
-                    color="warning" 
-                    dark 
-                    class="ma-5"
-                    @click="($event)=>{
-                        incompletePaybackDialog = true
-                        eventObj = $event
-                      }"
-                    >
-                    <span class="mr-2">Payback (incomplete)</span>
-                    <v-icon>mdi-cash</v-icon>
-                  </v-btn>
-                  
-                    
-                  <v-btn 
-                  color="success" 
-                  dark 
-                  class="ma-5"
-                  @click="($event)=>{
-                      paybackDialog = true
-                      eventObj = $event
-                    }"
-                  >
-                    <span class="mr-2">Complete Payback</span>
-                    <v-icon>mdi-cash-check</v-icon>
-                  </v-btn>
-                  <v-tooltip
-                    top
-                  >
-                    <template v-slot:activator="{ on }">
-                      <v-btn
-                        icon
-                        v-on="on"
-                      >
-                        <v-icon color="grey lighten-1">
-                          mdi-information
-                        </v-icon>
-                      </v-btn>
-                    </template>
-                    <span>{{debt.information}}</span>
-                  </v-tooltip>
-                </v-expansion-panel-content>
-              </v-expansion-panel>
-            </v-expansion-panels>
-        </v-card>
-      </v-tab-item>
-      
-    </v-tabs>
-    
   </div>
 </template>
 
@@ -496,8 +496,7 @@ export default {
     },
 
     dynamicStyle(){
-      // if (this.$vuetify.breakpoint.name == 'xs' || this.$vuetify.breakpoint.name == 'sm') return 'max-height: 50vh; overflow-y: auto'
-      return 'max-height: 70vh; overflow-y: auto'
+      return 'height: 100%; max-height: 70vh; overflow-y: auto'
     },
     dynamicTabStyle(){
       switch (this.$vuetify.breakpoint.name) { //$vuetify.breakpoint.xs ? '' : 'too-big'

@@ -9,7 +9,7 @@
         
 
                 <v-btn icon @click="addDialog = true">
-                    <v-icon>mdi-plus</v-icon>
+                    <v-icon>mdi-account-multiple-plus</v-icon>
                 </v-btn>
         <v-dialog
             transition="dialog-bottom-transition"
