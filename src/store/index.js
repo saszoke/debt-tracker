@@ -99,7 +99,7 @@ export default new Vuex.Store({
           // console.log(individualPersonChange.doc.)
           if (individualPersonChange.type == 'added'){
             state.ppl.push({'name': individualPersonChange.doc.data().name , 'url': individualPersonChange.doc.data().imageName , 'tempUrl': individualPersonChange.doc.data().tempUrl})
-            
+            console.log('PERSON ADDED!!')
           } 
           
           else if (individualPersonChange.type == 'removed'){
@@ -107,14 +107,15 @@ export default new Vuex.Store({
             state.ppl.splice(pos,1)
           } 
           else if (individualPersonChange.type == 'modified'){
+            console.log('PERSON MODIFIED!!')
             // state.ppl = state.ppl.filter(someone => someone.name == individualPersonChange.doc.data().name)
+            console.log('lastnamechange: ', state.lastNameChange)
             let indexToBeModified = state.ppl.map(function(e) { return e.name; }).indexOf(state.lastNameChange);//state.ppl.indexOf(state.lastNameChange)//state.ppl.find(someone => someone.name == state.lastNameChange)
             state.ppl[indexToBeModified].name = individualPersonChange.doc.data().name
             state.ppl[indexToBeModified].tempUrl = individualPersonChange.doc.data().tempUrl
             state.ppl[indexToBeModified].url = individualPersonChange.doc.data().imageName
             console.log(state.ppl)
-            state.ppl.push({'foo':'foo'})  // WORKAROUND
-            state.ppl.pop()       // másképpen az UI nem érzékeli a state változást, érdekes, hogy logban látja
+            console.log(individualPersonChange.doc.data())
           }
 
           baseRef.where("name", "==", individualPersonChange.doc.data().name).get().then((szemely)=>{
@@ -123,6 +124,7 @@ export default new Vuex.Store({
               changes.forEach(change => {
                 console.log(change.type)
                 if (change.type == 'added'){
+                  console.log('DEBT ADDED!!')
                   state.debts.push(
                     {...change.doc.data(), 'page': individualPersonChange.doc.data().name, 'uniqueIdentifier': change.doc.id }
                   )
@@ -132,6 +134,7 @@ export default new Vuex.Store({
 
                   state.debts = state.debts.filter(element => element.uniqueIdentifier != change.doc.id)
                 } else if (change.type == 'modified'){
+                  console.log('DEBT CHANGED!!')
                   state.debts.forEach((el)=>{
                     if (el.uniqueIdentifier == change.doc.id){
                       console.log("OLD VALUE: " + el.amount)

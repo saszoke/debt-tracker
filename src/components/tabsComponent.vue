@@ -5,7 +5,7 @@
 
     <v-tabs  show-arrows >
       
-      <v-tab v-for="someone in ppl" :key="someone.tempUrl">
+      <v-tab v-for="someone in ppl" :key="someone.uniqueIdentifier">
         <v-icon left >
           mdi-account
         </v-icon>
@@ -16,7 +16,7 @@
 
 
 
-      <v-tab-item v-for="someone in ppl" :key="someone">
+      <v-tab-item v-for="someone in ppl" :key="someone.uniqueIdentifier">
         <v-card flat :class="isVertical ? 'd-flex' : 'd-flex flex-column'">
           <v-img
             :src="someone.tempUrl"
@@ -73,7 +73,6 @@
               <v-list-item>
                 <v-btn
                   width="100%"
-                  @click="testFunc"
                 >View Statistics</v-btn>
               </v-list-item>
             </v-list>
@@ -89,11 +88,11 @@
               <v-expansion-panel v-for="debt in debtsFiltered(someone.name)" :key="debt.id">
                 <v-expansion-panel-header class="pa-5 grey--text" color="light-green lighten-5">
                   <div class="d-flex justify-space-between pa-2">
-                    <div class="mx-5 green--text font-weight-bold marker4AMT" :mySecret="debt.uniqueIdentifier">{{ debt.amount }} HUF</div>
+                    <div class="mx-5 green--text font-weight-bold marker4AMT" :mySecret="'id'+debt.uniqueIdentifier">{{ debt.amount }} HUF</div>
                     <div class="mx-5">{{ debt.date.toDate().getDate() + ' - ' + months[debt.date.toDate().getMonth()] + ' - '  + debt.date.toDate().getFullYear() }}</div>
                   </div>
                 </v-expansion-panel-header>
-                <v-expansion-panel-content :id="debt.uniqueIdentifier" class="marker4ID">
+                <v-expansion-panel-content :id="'id'+debt.uniqueIdentifier" class="marker4ID">
                   
                   <v-btn 
                     color="warning" 
@@ -526,12 +525,14 @@ export default {
       },
 
     completePayback(event){
-      let toBePassed = {'on': this.triggerOn(), 'id': event.target.closest(".marker4ID").id}
+      let toBePassed = {'on': this.triggerOn(), 'id': event.target.closest(".marker4ID").id.slice(2)}
       this.removeDebt(toBePassed)
     },
 
     incompletePayback(event){
-      let toBePassed = {'on': this.triggerOn(), 'id': event.target.closest(".marker4ID").id, 'amount': this.incompletePaybackAmount, 'current': document.querySelector(`[mySecret=${event.target.closest(".marker4ID").id}]`).innerHTML.split(" ")[0]}
+      console.log(event.target.closest(".marker4ID").id)
+      console.log(document.querySelector(`[mySecret=${event.target.closest(".marker4ID").id}]`).innerHTML.split(" ")[0])
+      let toBePassed = {'on': this.triggerOn(), 'id': event.target.closest(".marker4ID").id.slice(2), 'amount': this.incompletePaybackAmount, 'current': document.querySelector(`[mySecret=${event.target.closest(".marker4ID").id}]`).innerHTML.split(" ")[0]}
       this.changeDebt(toBePassed)
       console.log(toBePassed)
     },
@@ -546,6 +547,7 @@ export default {
               storageRef.snapshot.ref.getDownloadURL().then(url => {
               this.picture = url
               console.log(url)
+              console.log({on: this.triggerOn(), newName: this.myinputname, img: this.imgData.name, tempUrl: this.picture})
               this.editPerson({on: this.triggerOn(), newName: this.myinputname, img: this.imgData.name, tempUrl: this.picture});
               this.editDialog = false
               this.myinputname = ''
