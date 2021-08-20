@@ -120,11 +120,12 @@ export default {
     },
 
     mounted(){
+        console.log('I AM MOUNTED', firebase.auth().currentUser)
         this.loggedInUser = firebase.auth().currentUser.email
         this.setupView()
     },
     created(){
-        
+        console.log('I AM CREATED', firebase.auth().currentUser)
     },
 
     computed: {
@@ -139,16 +140,21 @@ export default {
     methods: {
         ...mapActions([
             'addNewPerson',
-            'setupView'
+            'setupView',
+            'resetState'
         ]),
 
         async signOut(){
             firebase.auth().signOut().then(()=>{
+                console.log("USER SIGNED OUT:::::")
+                console.log(firebase.auth().currentUser)
                 this.$router.replace({ name: 'Login'})
+                this.resetState()
             })
         },
 
         fileUpload(){
+            
             const storageRef = firebase.storage().ref(this.imgData.name).put(this.imgData)
 
             storageRef.on('state_changed', (state)=>{
@@ -167,7 +173,11 @@ export default {
                 })
                 }
             })
-        }
+        },
+
+        
+
+        
     }
 
 }

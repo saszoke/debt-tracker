@@ -380,6 +380,7 @@
                           $v.$touch()
                           if (!$v.amount.$invalid){
                             if (information.trim() == '') information = 'No information provided'
+                            
                             addNewDebt({'on': triggerOn() ,'amount': amount, 'information':information});
                             debtDialog = false
                             amount = ''

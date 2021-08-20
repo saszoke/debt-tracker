@@ -1,38 +1,38 @@
 <template>
 <v-img src="../assets/hatter.jpg" min-height="100%" class="d-flex align-center">
 <v-sheet  class="mx-auto glass-container" >
-<form>
-    <v-text-field
-        success 
-        v-model="email"
-        :error-messages="nameErrors"
-        label="Email"
-    ></v-text-field>
-    <v-text-field
-        success
-        type="password"
-        class="white--text" 
-        v-model="password"
-        :error-messages="passwordErrors"
-        label="Password"
-    ></v-text-field>
-    
-
-    <v-btn
+    <form>
+        <v-text-field
+            success 
+            v-model="email"
+            :error-messages="nameErrors"
+            label="Email"
+        ></v-text-field>
+        <v-text-field
+            success
+            type="password"
+            class="white--text" 
+            v-model="password"
+            :error-messages="passwordErrors"
+            label="Password"
+        ></v-text-field>
         
-        class="green accent-1"
-        dark
-        width="100%"
-        @click="submit"
-    >
-        Log in
-    </v-btn>
-    <div class="green--text caption mt-5">
-        Do not have an account yet? <v-btn plain class="text-decoration-none" @click="$router.push('/register')">Register</v-btn>
-    </div>
-    <v-alert type="error" v-if="loginError" outlined style="max-width: 300px">
-        {{ loginError }}
-    </v-alert>
+
+        <v-btn
+            
+            class="green accent-1"
+            dark
+            width="100%"
+            @click.prevent="submit"
+        >
+            Log in
+        </v-btn>
+        <div class="green--text caption mt-5">
+            Do not have an account yet? <v-btn plain class="text-decoration-none" @click="$router.push('/register')">Register</v-btn>
+        </div>
+        <v-alert type="error" v-if="loginError" outlined style="max-width: 300px">
+            {{ loginError }}
+        </v-alert>
 
     </form>
 
@@ -47,6 +47,7 @@
     import { required} from 'vuelidate/lib/validators';
     import firebase from 'firebase/app';
     import "firebase/auth";
+    import {mapActions} from 'vuex';
 
     export default {
         name: "Login",
@@ -54,8 +55,8 @@
         mixins: [validationMixin],
 
         validations: {
-        email: { required },
-        password: { required }
+            email: { required },
+            password: { required }
         },
 
 
@@ -66,34 +67,41 @@
         }),
 
         computed: {
-        nameErrors () {
-            const errors = []
-            if (!this.$v.email.$dirty) return errors
-            !this.$v.email.required && errors.push('Name is required.')
-            return errors
-        },
-        passwordErrors () {
-            const errors = []
-            if (!this.$v.password.$dirty) return errors
-            !this.$v.password.required && errors.push('Password is required')
-            return errors
-        },
+            nameErrors () {
+                const errors = []
+                if (!this.$v.email.$dirty) return errors
+                !this.$v.email.required && errors.push('Name is required.')
+                return errors
+            },
+            passwordErrors () {
+                const errors = []
+                if (!this.$v.password.$dirty) return errors
+                !this.$v.password.required && errors.push('Password is required')
+                return errors
+            },
         },
 
         methods: {
-        submit () {
-            this.$v.$touch()
-            if (!this.$v.$invalid){
-                firebase.auth().signInWithEmailAndPassword(this.email, this.password).then( data =>{
-                    console.log(data);
-                    this.$router.replace({ name: "Home" });
-                }).catch(err => {
-                    console.log(err)
-                    this.loginError = err.message
-                })
+            ...mapActions([
+                'resetState'
+            ]),
+            submit () {
+                this.$v.$touch()
+                if (!this.$v.$invalid){
+                    firebase.auth().signInWithEmailAndPassword(this.email, this.password).then( () =>{
+                        console.log("USER SIGNED IN:::::")
+                        console.log(firebase.auth().currentUser)
+                        this.$router.replace({ name: "Home" });
+                        this.resetState()
+                        console.log(this.$store.state)
+                    }).catch(err => {
+                        console.log(err)
+                        this.loginError = err.message
+                    })
+                }
+                this.$v.$reset()
             }
-        }
-        },
+            },
     }
 </script>
 

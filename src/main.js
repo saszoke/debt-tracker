@@ -28,7 +28,11 @@ Vue.config.productionTip = false;
 
   let app;
   firebase.auth().onAuthStateChanged(() => {
-    // console.log(user);
+    // console.log(user.metadata.lastSignInTime)
+    
+    // console.log(user.metadata.lastSignInTime)
+    // console.log(user.metadata.lastSignInTime)
+    // console.log(user.metadata.lastSignInTime)
     if (!app){
       app = new Vue({
         router,
@@ -37,7 +41,41 @@ Vue.config.productionTip = false;
         render: (h) => h(App),
       }).$mount("#app");
     }
+    
   })
 
+  // const baseRef = db.collection('usersdata').doc(firebase.auth().currentUser.uid).collection('pages')
+  // baseRef.onSnapshot(snap =>{
+  //   let personChanges = snap.docChanges();
+  //   personChanges.forEach(individualPersonChange=>{
+      
+  //     if (individualPersonChange.type == 'added'){
+  //       console.log('from main js: added type')
+  //     } 
+      
+  //     else if (individualPersonChange.type == 'removed'){
+  //       console.log('from main js: removed type')
+  //     } 
+  //     else if (individualPersonChange.type == 'modified'){
+  //       console.log('from main js: modified type')
+  //     }
+
+  //     baseRef.where("name", "==", individualPersonChange.doc.data().name).get().then((szemely)=>{
+  //       baseRef.doc(szemely.docs[0].id).collection('debts').onSnapshot(snapshot => {
+  //         let changes = snapshot.docChanges();
+  //         changes.forEach(change => {
+  //           if (change.type == 'added'){
+  //             console.log('from main js: added type ON DEBT')
+  //           } else if (change.type == 'removed'){
+  //             console.log('from main js: removed type ON DEBT')
+
+  //           } else if (change.type == 'modified'){
+  //             console.log('from main js: modified type ON DEBT')
+  //           }
+  //         })
+  //       })
+  //     }).catch(err => console.log(err)) // <<<--------------------------------------------------------------------------------------------------- TROUBLESHOOTNAK 
+  //   })
+  // })
 
 export default db;
