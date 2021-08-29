@@ -117,7 +117,6 @@
             this.$v.$touch()
             
             if (!this.$v.$invalid){
-                console.log('továbbít...' + this.$v.$invalid)
                 firebase.auth().createUserWithEmailAndPassword(this.email, this.password).then(()=>{
                     this.$router.push('/');
                     //this.$router.replace({ name: "/" });
@@ -125,7 +124,6 @@
                 
             }
             else{
-                console.log('nem továbbít sehova...')
                 console.log(this.$v)
                 }
         }
@@ -135,9 +133,7 @@
 
 <style scoped>
 
-body{
-  /* background-image: url('public/hatter.jpg') */
-}
+
 
 .glass-container{
     width: 700px;

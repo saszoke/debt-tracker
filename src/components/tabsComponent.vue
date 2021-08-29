@@ -423,6 +423,7 @@ export default {
       information: '',
       eventObj: {},
       triggerOn: function(){
+        console.log(document.querySelector('.v-tab--active').textContent.trim())
         return document.querySelector('.v-tab--active').textContent.trim()
       },
       months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
@@ -454,8 +455,6 @@ export default {
         const errors = []
         if (!this.$v.myinputname.$dirty) return errors
         !this.$v.myinputname.required && errors.push('Field cannot be empty.')
-        console.log(errors)
-        console.log(this.$v.myinputname)
         return errors
     },
 
@@ -531,24 +530,17 @@ export default {
     },
 
     incompletePayback(event){
-      console.log(event.target.closest(".marker4ID").id)
-      console.log(document.querySelector(`[mySecret=${event.target.closest(".marker4ID").id}]`).innerHTML.split(" ")[0])
       let toBePassed = {'on': this.triggerOn(), 'id': event.target.closest(".marker4ID").id.slice(2), 'amount': this.incompletePaybackAmount, 'current': document.querySelector(`[mySecret=${event.target.closest(".marker4ID").id}]`).innerHTML.split(" ")[0]}
       this.changeDebt(toBePassed)
-      console.log(toBePassed)
     },
 
     fileUpload(){
       const storageRef = firebase.storage().ref(this.imgData.name).put(this.imgData)
 
       storageRef.on('state_changed', (state)=>{
-          console.log('STATE CHANGED!!!!!')
-          console.log(state)
           if (state.bytesTransferred === state.totalBytes){
               storageRef.snapshot.ref.getDownloadURL().then(url => {
               this.picture = url
-              console.log(url)
-              console.log({on: this.triggerOn(), newName: this.myinputname, img: this.imgData.name, tempUrl: this.picture})
               this.editPerson({on: this.triggerOn(), newName: this.myinputname, img: this.imgData.name, tempUrl: this.picture});
               this.editDialog = false
               this.myinputname = ''

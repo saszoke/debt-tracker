@@ -120,13 +120,10 @@ export default {
     },
 
     mounted(){
-        console.log('I AM MOUNTED', firebase.auth().currentUser)
         this.loggedInUser = firebase.auth().currentUser.email
         this.setupView()
     },
-    created(){
-        console.log('I AM CREATED', firebase.auth().currentUser)
-    },
+    created(){},
 
     computed: {
         inputNameErrors () {
@@ -146,8 +143,6 @@ export default {
 
         async signOut(){
             firebase.auth().signOut().then(()=>{
-                console.log("USER SIGNED OUT:::::")
-                console.log(firebase.auth().currentUser)
                 this.$router.replace({ name: 'Login'})
                 this.resetState()
             })
@@ -158,12 +153,9 @@ export default {
             const storageRef = firebase.storage().ref(this.imgData.name).put(this.imgData)
 
             storageRef.on('state_changed', (state)=>{
-                console.log('STATE CHANGED!!!!!')
-                console.log(state)
                 if (state.bytesTransferred === state.totalBytes){
                     storageRef.snapshot.ref.getDownloadURL().then(url => {
                     this.picture = url
-                    console.log(url)
                     this.addNewPerson({name: this.inputName, img: this.imgData.name, tempUrl: this.picture});
                     this.addDialog = false
                     this.inputName = ''
