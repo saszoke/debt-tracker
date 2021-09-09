@@ -49,7 +49,7 @@
             <v-list>
               <v-list-item>
                 <v-btn 
-                  @click="debtDialog = true"
+                  @click="showAddDebtDialogComponent = true"
                   width="100%"
                   >
                   Add New Debt
@@ -59,14 +59,14 @@
               <v-list-item>
                 <v-btn
                   width="100%"
-                  @click="editDialog = true"
+                  @click="showEditDialogComponent = true"
                 >Edit person</v-btn>
               </v-list-item>
 
               <v-list-item>
                 <v-btn
                   width="100%"
-                  @click="removeDialog = true"
+                  @click="showRemoveDialogComponent = true"
                 >Remove person</v-btn>
               </v-list-item>
 
@@ -99,7 +99,7 @@
                     dark 
                     class="ma-5"
                     @click="($event)=>{
-                        incompletePaybackDialog = true
+                        removeDebtIncompleteDialogComponent = true
                         eventObj = $event
                       }"
                     >
@@ -113,7 +113,7 @@
                   dark 
                   class="ma-5"
                   @click="($event)=>{
-                      paybackDialog = true
+                      removeDebtCompleteDialogComponent = true
                       eventObj = $event
                     }"
                   >
@@ -143,276 +143,47 @@
       
     </v-tabs>
     <!-- DIALOGS -->
-              <!-- PAYBACKDIALOG START-->
-              <v-dialog
-                v-model="paybackDialog"
-                max-width="600"
-                ref="paybackDialog"
-                >
-                <v-card>
-                    <v-toolbar
-                    color="success"
-                    dark
-                    >Complete Payback Confirmation</v-toolbar>
+      <!-- PAYBACKDIALOG START-->
+      <remove-debt-complete-dialog-component :visible="removeDebtCompleteDialogComponent" :eventObj="eventObj" @close="removeDebtCompleteDialogComponent=false"/>
+      <!-- PAYBACKDIALOG END-->
 
-                    <v-card-text class="mt-5">
-                      Are you sure the debt has been fully paid back?
-                    </v-card-text>
+      <!-- INCOMPLETEDIALOG START-->
+      <remove-debt-incomplete-dialog-component :visible="removeDebtIncompleteDialogComponent" :eventObj="eventObj" @close="removeDebtIncompleteDialogComponent=false"/>
+      <!-- INCOMPLETEDIALOG END-->
 
-                    <v-card-actions class="justify-end">
-                    <v-btn
-                        text
-                        color="green darken-1"
-                        @click="()=>{
-                            paybackDialog = false
-                            completePayback(eventObj)
-                        }"
+      <!-- EDITDIALOG START-->
+      <edit-dialog-component :visible="showEditDialogComponent"  @close="showEditDialogComponent=false"/>
+      <!-- EDITDIALOG END-->
 
-                    >Absolutely</v-btn>
-                    <v-btn
-                        text
-                        @click="()=>{
-                            paybackDialog = false
-                            }"
-                    >Not sure</v-btn>
-                    </v-card-actions>
-                </v-card>
-              </v-dialog>
-              <!-- PAYBACKDIALOG END-->
+      <!-- REMOVEDIALOG START -->
+      <remove-dialog-component :visible="showRemoveDialogComponent"  @close="showRemoveDialogComponent=false" @delete="removePage({'on': triggerOn()});"/>
+      <!-- REMOVEDIALOG END -->
 
-              <!-- INCOMPLETEDIALOG START-->
-              <v-dialog
-                v-model="incompletePaybackDialog"
-                max-width="600"
-                ref="incompletePaybackDialog"
-                >
-                <v-card>
-                    <v-toolbar
-                    color="success"
-                    dark
-                    >Payback Confirmation</v-toolbar>
-
-                    <v-card-text class="mt-5">
-                      Please enter the amount that has been paid back.
-                    </v-card-text>
-                    <v-text-field
-                          class="mx-5"
-                          v-model="incompletePaybackAmount"
-                          label="Amount"
-                          :error-messages="incompletePaybackAmountErrors"
-                    ></v-text-field>
-
-                    <v-card-actions class="justify-end">
-                    <v-btn
-                        text
-                        color="green darken-1"
-                        @click="()=>{
-                            
-                            $v.$touch()
-                            if (!$v.incompletePaybackAmount.$invalid){
-                              incompletePaybackDialog = false
-                              incompletePayback(eventObj)
-                              incompletePaybackAmount = ''
-                              $v.$reset()
-                            }
-                        }"
-
-                    >Confirm</v-btn>
-                    <v-btn
-                        text
-                        @click="()=>{
-                            incompletePaybackDialog = false
-                            incompletePaybackAmount = ''
-                            }"
-                    >Cancel</v-btn>
-                    </v-card-actions>
-                </v-card>
-              </v-dialog>
-              <!-- INCOMPLETEDIALOG END-->
-
-              <!-- EDITDIALOG START-->
-              <v-dialog
-                v-model="editDialog"
-                max-width="600"
-              >
-
-                <v-card>
-                    <v-toolbar
-                    color="success"
-                    dark
-                    >Edit Person</v-toolbar>
-                    <v-card-text>
-                        <v-text-field
-                            success 
-                            label="Nickname"
-                            v-model="myinputname"
-                            :error-messages="myinputnameErrors"
-                        ></v-text-field>
-                        <v-file-input
-                            :rules="rules"
-                            v-model="filename"
-                            accept="image/*"
-                            placeholder="Pick an avatar"
-                            prepend-icon="mdi-camera"
-                            label="Avatar"
-                            @change="imgData = $event"
-                            ref="fileupload"
-                        ></v-file-input>
-                    </v-card-text>
-                    <v-card-actions class="justify-end">
-                    <v-btn
-                        text
-                        color="green darken-1"
-                        @click="()=>{
-                            $v.$touch()
-                            if (!$v.myinputname.$invalid){
-                                fileUpload()
-                                
-                                $v.$reset()
-                            }
-                        }"
-                    >Apply</v-btn>
-                    <v-btn
-                        text
-                        @click="()=>{
-                            editDialog = false
-                            myinputname = ''
-                            imgData = null
-                            picture = null
-                            filename = null
-                            $v.$reset()}"
-                    >Close</v-btn>
-                    </v-card-actions>
-                  </v-card>
-              </v-dialog>
-              <!-- EDITDIALOG END-->
-
-              <!-- REMOVEDIALOG START -->
-                <v-dialog
-                  v-model="removeDialog"
-                  max-width="300"
-                >
-                  <v-card>
-                    <v-card-title class="text-h5">
-                      Remove person card?
-                    </v-card-title>
-
-                    <v-card-text>
-                      Removing a person card results in losing all the related data to the person, ongoing debts included. Are you sure? 
-                    </v-card-text>
-
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-
-                      <v-btn
-                        color="green darken-1"
-                        text
-                        @click="removeDialog = false"
-                      >
-                        No, cancel
-                      </v-btn>
-
-                      <v-btn
-                        color="red darken-1"
-                        text
-                        @click="()=>{
-                          removeDialog = false
-                          removePage({'on': triggerOn()});
-                        }"
-                      >
-                        Yes, go ahead
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
-              <!-- REMOVEDIALOG END -->
-
-              <!-- DEBTDIALOG START -->
-                <v-dialog
-                  v-model="debtDialog"
-                  persistent
-                  max-width="600px"
-                >
-                  <v-card>
-                    <v-card-title>
-                      <span class="text-h5">User Profile</span>
-                    </v-card-title>
-                    <v-card-text>
-                      <v-container>
-                        <v-row>
-
-                          <v-col cols="12">
-                            <v-text-field
-                              v-model="amount"
-                              label="Amount"
-                              :error-messages="amountErrors"
-                            ></v-text-field>
-                          </v-col>
-
-                          <v-col cols="12">
-                              <v-text-field
-                                v-model="information"
-                                label="Information"
-                              ></v-text-field>
-                            </v-col>
-
-                        </v-row>
-                      </v-container>
-                    </v-card-text>
-                    <v-card-actions>
-                      <v-spacer></v-spacer>
-                      <v-btn
-                        color="blue darken-1"
-                        text
-                        @click="function(){
-                          $v.$reset()
-                          debtDialog = false
-                          amount = ''
-                          information = ''
-                        }"
-                      >
-                        Close
-                      </v-btn>
-                      <v-btn
-                        color="blue darken-1"
-                        text
-                        @click="function(){
-                          $v.$touch()
-                          if (!$v.amount.$invalid){
-                            if (information.trim() == '') information = 'No information provided'
-                            
-                            addNewDebt({'on': triggerOn() ,'amount': amount, 'information':information});
-                            debtDialog = false
-                            amount = ''
-                            information = ''
-                            $v.$reset()
-                          }
-                        }"
-                      >
-                        Add
-                      </v-btn>
-                    </v-card-actions>
-                  </v-card>
-                </v-dialog>
-              <!-- DEBTDIALOG END -->
-            <!-- DIALOGS END-->
+      <!-- DEBTDIALOG START -->
+      <add-debt-dialog-component :visible="showAddDebtDialogComponent"  @close="showAddDebtDialogComponent=false"/>
+      <!-- DEBTDIALOG END -->
+    <!-- DIALOGS END-->
   </div>
 </template>
 
-<script> // THE MORE PAGES YOU HAVE, THE DARKER DIALOGS BACKGROUND GET
+<script>
 import {mapActions} from 'vuex';
 import { validationMixin } from 'vuelidate';
-import { minValue, required } from 'vuelidate/lib/validators';
-import firebase from 'firebase/app';
+import { required } from 'vuelidate/lib/validators';
+import removeDialogComponent from './removeDialogComponent.vue';
+import editDialogComponent from './editDialogComponent.vue';
+import addDebtDialogComponent from './addDebtDialogComponent.vue';
+import removeDebtCompleteDialogComponent from './removeDebtCompleteDialogComponent.vue';
+import removeDebtIncompleteDialogComponent from './removeDebtIncompleteDialogComponent.vue';
 
 export default {
+  components: { removeDialogComponent, editDialogComponent, addDebtDialogComponent, removeDebtCompleteDialogComponent, removeDebtIncompleteDialogComponent },
   name: "tabsComponent",
   mixins: [validationMixin],
 
   validations: {
-    amount: { minValue: minValue(10), required  },
     myinputname: { required },
-    incompletePaybackAmount: { required }
+
     },
 
   data: () => ({
@@ -427,30 +198,24 @@ export default {
         return document.querySelector('.v-tab--active').textContent.trim()
       },
       months: ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"],
-      removeDialog: false,
       editDialog: false,
       paybackDialog: false,
       incompletePaybackDialog: false,
       rules: [
               value => !value || value.size < 5000000 || 'Avatar size should be less than 5 MB!',
             ],
-      imgData: {},
+      imgData: null,
       picture: null,
-      filename: null
+      filename: null,
+      showRemoveDialogComponent: false,
+      showEditDialogComponent: false,
+      showAddDebtDialogComponent: false,
+      removeDebtCompleteDialogComponent: false,
+      removeDebtIncompleteDialogComponent: false,
     }),
 
+
   computed: {
-
-
-
-    amountErrors () {
-        const errors = []
-        if (!this.$v.amount.$dirty) return errors
-        !this.$v.amount.minValue && errors.push('Amount is too low.')
-        !this.$v.amount.required && errors.push('Field cannot be empty.')
-        return errors
-    },
-
     myinputnameErrors(){
         const errors = []
         if (!this.$v.myinputname.$dirty) return errors
@@ -458,12 +223,7 @@ export default {
         return errors
     },
 
-    incompletePaybackAmountErrors(){
-        const errors = []
-        if (!this.$v.incompletePaybackAmount.$dirty) return errors
-        !this.$v.incompletePaybackAmount.required && errors.push('Field cannot be empty.')
-        return errors
-    },
+
 
     ppl(){
       return this.$store.state.ppl;
@@ -513,44 +273,17 @@ export default {
 
   methods: {
     ...mapActions([
-      'addNewDebt',
-      'removeDebt',
       'removePage',
-      'editPerson',
-      'changeDebt'
     ]),
 
     debtsFiltered (someone) {
         return this.$store.state.debts.filter(debt => debt.page == someone)
       },
 
-    completePayback(event){
-      let toBePassed = {'on': this.triggerOn(), 'id': event.target.closest(".marker4ID").id.slice(2)}
-      this.removeDebt(toBePassed)
-    },
 
-    incompletePayback(event){
-      let toBePassed = {'on': this.triggerOn(), 'id': event.target.closest(".marker4ID").id.slice(2), 'amount': this.incompletePaybackAmount, 'current': document.querySelector(`[mySecret=${event.target.closest(".marker4ID").id}]`).innerHTML.split(" ")[0]}
-      this.changeDebt(toBePassed)
-    },
 
-    fileUpload(){
-      const storageRef = firebase.storage().ref(this.imgData.name).put(this.imgData)
 
-      storageRef.on('state_changed', (state)=>{
-          if (state.bytesTransferred === state.totalBytes){
-              storageRef.snapshot.ref.getDownloadURL().then(url => {
-              this.picture = url
-              this.editPerson({on: this.triggerOn(), newName: this.myinputname, img: this.imgData.name, tempUrl: this.picture});
-              this.editDialog = false
-              this.myinputname = ''
-              this.imgData = null
-              this.picture = null
-              this.filename = null
-          })
-          }
-      })
-    }
+    
   }
 };
 </script>

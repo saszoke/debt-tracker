@@ -48,7 +48,7 @@
 
                         $v.$touch()
                         if (!$v.$invalid){
-                            fileUpload()
+                            createPerson()
                             
                             $v.$reset()
                         }
@@ -112,7 +112,7 @@ export default {
             rules: [
                     value => !value || value.size < 5000000 || 'Avatar size should be less than 5 MB!',
                 ],
-            imgData: {},
+            imgData: null,
             picture: null,
             filename: null
 
@@ -148,10 +148,11 @@ export default {
             })
         },
 
-        fileUpload(){
-            
-            const storageRef = firebase.storage().ref(this.imgData.name).put(this.imgData)
+        createPerson(){
+        if (this.imgData){
 
+            const storageRef = firebase.storage().ref(this.imgData.name).put(this.imgData)
+    
             storageRef.on('state_changed', (state)=>{
                 if (state.bytesTransferred === state.totalBytes){
                     storageRef.snapshot.ref.getDownloadURL().then(url => {
@@ -165,6 +166,11 @@ export default {
                 })
                 }
             })
+        } else {
+            this.addNewPerson({name: this.inputName});
+            this.addDialog = false
+            this.inputName = ''
+        }
         },
 
         

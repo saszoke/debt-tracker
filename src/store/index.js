@@ -64,21 +64,42 @@ export default new Vuex.Store({
     },
     addNewPerson: (state,payload) => {
       const baseRef = db.collection('usersdata').doc(firebase.auth().currentUser.uid).collection('pages')
-      baseRef.add({'name' : payload.name, 'imageName': payload.img, 'tempUrl': payload.tempUrl})
-      .then(() => console.log(state))
-      .catch((err)=> console.log(err))
+
+      try{
+
+        baseRef.add({'name' : payload.name, 'imageName': payload.img, 'tempUrl': payload.tempUrl})
+        .then(() => console.log(state))
+        
+      } catch {
+
+        baseRef.add({'name' : payload.name, 'imageName': 'man.jpg', 'tempUrl': 'https://firebasestorage.googleapis.com/v0/b/vue-bank-73d4b.appspot.com/o/man.jpg?alt=media&token=d917b17c-984d-4dca-b676-db2a3a467536'})
+        .then(() => console.log(state))
+
+      }
 
     },
     editPerson: (state, payload)=>{
       const baseRef = db.collection('usersdata').doc(firebase.auth().currentUser.uid).collection('pages')
+      console.log(payload.on)
       baseRef.where("name", "==", payload.on)
       .get()
       .then(
         (page)=>{
           state.lastNameChange = payload.on
-          baseRef.doc(page.docs[0].id).set(
-            { 'name': payload.newName, 'imageName': payload.img, 'tempUrl': payload.tempUrl}
-          )
+          console.log('Sending update request to firebase: ', payload.newName, payload.img, payload.tempUrl)
+          console.log(page)
+          console.log(page.docs)
+          console.log(page.docs[0])
+          try{
+            baseRef.doc(page.docs[0].id).set(
+            { 'name': payload.newName, 'imageName': payload.img, 'tempUrl': payload.tempUrl} // ha space van a végén bebuggol!
+            )
+          } catch{
+            baseRef.doc(page.docs[0].id).set(
+              { 'name': payload.newName},
+              { merge: true }
+              )
+          }
         }
       )
     },
@@ -119,6 +140,8 @@ export default new Vuex.Store({
 
       if (myglobalcounter == 0){
         myglobalcounter++
+
+        console.log(':::::::::::::::::', firebase.auth().currentUser.uid)
         const baseRef = db.collection('usersdata').doc(firebase.auth().currentUser.uid).collection('pages')
         baseRef.onSnapshot(snap =>{
           let personChanges = snap.docChanges();
