@@ -170,11 +170,11 @@
 import {mapActions} from 'vuex';
 import { validationMixin } from 'vuelidate';
 import { required } from 'vuelidate/lib/validators';
-import removeDialogComponent from './removeDialogComponent.vue';
-import editDialogComponent from './editDialogComponent.vue';
-import addDebtDialogComponent from './addDebtDialogComponent.vue';
-import removeDebtCompleteDialogComponent from './removeDebtCompleteDialogComponent.vue';
-import removeDebtIncompleteDialogComponent from './removeDebtIncompleteDialogComponent.vue';
+import removeDialogComponent from './dialogs/removeDialogComponent.vue';
+import editDialogComponent from './dialogs/editDialogComponent.vue';
+import addDebtDialogComponent from './dialogs/addDebtDialogComponent.vue';
+import removeDebtCompleteDialogComponent from './dialogs/removeDebtCompleteDialogComponent.vue';
+import removeDebtIncompleteDialogComponent from './dialogs/removeDebtIncompleteDialogComponent.vue';
 
 export default {
   components: { removeDialogComponent, editDialogComponent, addDebtDialogComponent, removeDebtCompleteDialogComponent, removeDebtIncompleteDialogComponent },
