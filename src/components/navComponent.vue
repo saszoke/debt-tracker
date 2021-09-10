@@ -8,67 +8,10 @@
         >
         
 
-                <v-btn icon @click="addDialog = true">
-                    <v-icon>mdi-account-multiple-plus</v-icon>
-                </v-btn>
-        <v-dialog
-            transition="dialog-bottom-transition"
-            max-width="600"
-            v-model="addDialog"
-            >
-            
-            <v-card>
-                <v-toolbar
-                color="success"
-                dark
-                >Create new Person</v-toolbar>
-                <v-card-text>
-                    <v-text-field
-                        success 
-                        label="Nickname"
-                        v-model="inputName"
-                        :error-messages="inputNameErrors"
-                    ></v-text-field>
-
-                    <v-file-input
-                        :rules="rules"
-                        v-model="filename"
-                        accept="image/*"
-                        placeholder="Pick an avatar"
-                        prepend-icon="mdi-camera"
-                        label="Avatar"
-                        ref="fileupload"
-                        @change="imgData = $event"
-                    ></v-file-input>
-                </v-card-text>
-                <v-card-actions class="justify-end">
-                <v-btn
-                    text
-                    @click="function(){
-
-                        $v.$touch()
-                        if (!$v.$invalid){
-                            createPerson()
-                            
-                            $v.$reset()
-                        }
-
-                    }"
-
-                >Create</v-btn>
-                <v-btn
-                    text
-                    @click="function(){
-                        addDialog = false
-                        inputName = ''
-                        imgData = null
-                        picture = null
-                        filename = null
-                        $v.$reset()}"
-                >Close</v-btn>
-                </v-card-actions>
-            </v-card>
-        </v-dialog>
+        <v-btn icon @click="showAddPersonDialogComponent = true">
+            <v-icon>mdi-account-multiple-plus</v-icon>
+        </v-btn>
+        
 
         <v-toolbar-title>Bank App</v-toolbar-title>
 
@@ -84,7 +27,7 @@
         </v-btn>
         </v-toolbar>
 
-            
+        <add-person-dialog-component :visible="showAddPersonDialogComponent"  @close="showAddPersonDialogComponent=false"/>
     </div>
 </template>
 
@@ -92,29 +35,20 @@
 import {mapActions} from 'vuex';
 import firebase from 'firebase/app';
 import "firebase/auth";
-import { validationMixin } from 'vuelidate';
-import { required } from 'vuelidate/lib/validators';
+
+import addPersonDialogComponent from './dialogs/addPersonDialogComponent.vue';
 
 
 export default {
 
     name: "navComponent",
-    mixins: [validationMixin],
+    components: { addPersonDialogComponent },
 
-    validations: {
-        inputName: { required  }
-    },
     data: ()=>{
         return {
-            addDialog: false,
-            inputName: '',
+            showAddPersonDialogComponent: false,
             loggedInUser: '',
-            rules: [
-                    value => !value || value.size < 5000000 || 'Avatar size should be less than 5 MB!',
-                ],
-            imgData: null,
-            picture: null,
-            filename: null
+
 
         }
     },
@@ -123,20 +57,9 @@ export default {
         this.loggedInUser = firebase.auth().currentUser.email
         this.setupView()
     },
-    created(){},
-
-    computed: {
-        inputNameErrors () {
-            const errors = []
-            if (!this.$v.inputName.$dirty) return errors
-            !this.$v.inputName.required && errors.push('Field name is mandatory.')
-            return errors
-        },
-    },
 
     methods: {
         ...mapActions([
-            'addNewPerson',
             'setupView',
             'resetState'
         ]),
@@ -147,39 +70,7 @@ export default {
                 this.resetState()
             })
         },
-
-        createPerson(){
-        if (this.imgData){
-
-            const storageRef = firebase.storage().ref(this.imgData.name).put(this.imgData)
-    
-            storageRef.on('state_changed', (state)=>{
-                if (state.bytesTransferred === state.totalBytes){
-                    storageRef.snapshot.ref.getDownloadURL().then(url => {
-                    this.picture = url
-                    this.addNewPerson({name: this.inputName, img: this.imgData.name, tempUrl: this.picture});
-                    this.addDialog = false
-                    this.inputName = ''
-                    this.imgData = null
-                    this.picture = null
-                    this.filename = null
-                })
-                }
-            })
-        } else {
-            this.addNewPerson({name: this.inputName});
-            this.addDialog = false
-            this.inputName = ''
-        }
-        },
-
-        
-
-        
     }
-
 }
-
-// minél több debt dialogot nyitok, annál sötétebb a háttér
 
 </script>

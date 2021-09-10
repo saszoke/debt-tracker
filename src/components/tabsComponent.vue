@@ -143,25 +143,11 @@
       
     </v-tabs>
     <!-- DIALOGS -->
-      <!-- PAYBACKDIALOG START-->
       <remove-debt-complete-dialog-component :visible="removeDebtCompleteDialogComponent" :eventObj="eventObj" @close="removeDebtCompleteDialogComponent=false"/>
-      <!-- PAYBACKDIALOG END-->
-
-      <!-- INCOMPLETEDIALOG START-->
       <remove-debt-incomplete-dialog-component :visible="removeDebtIncompleteDialogComponent" :eventObj="eventObj" @close="removeDebtIncompleteDialogComponent=false"/>
-      <!-- INCOMPLETEDIALOG END-->
-
-      <!-- EDITDIALOG START-->
       <edit-dialog-component :visible="showEditDialogComponent"  @close="showEditDialogComponent=false"/>
-      <!-- EDITDIALOG END-->
-
-      <!-- REMOVEDIALOG START -->
       <remove-dialog-component :visible="showRemoveDialogComponent"  @close="showRemoveDialogComponent=false" @delete="removePage({'on': triggerOn()});"/>
-      <!-- REMOVEDIALOG END -->
-
-      <!-- DEBTDIALOG START -->
       <add-debt-dialog-component :visible="showAddDebtDialogComponent"  @close="showAddDebtDialogComponent=false"/>
-      <!-- DEBTDIALOG END -->
     <!-- DIALOGS END-->
   </div>
 </template>
@@ -170,14 +156,10 @@
 import {mapActions} from 'vuex';
 import { validationMixin } from 'vuelidate';
 import { required } from 'vuelidate/lib/validators';
-import removeDialogComponent from './dialogs/removeDialogComponent.vue';
-import editDialogComponent from './dialogs/editDialogComponent.vue';
-import addDebtDialogComponent from './dialogs/addDebtDialogComponent.vue';
-import removeDebtCompleteDialogComponent from './dialogs/removeDebtCompleteDialogComponent.vue';
-import removeDebtIncompleteDialogComponent from './dialogs/removeDebtIncompleteDialogComponent.vue';
+import { removeDialogComponent, editDialogComponent, addDebtDialogComponent, removeDebtCompleteDialogComponent, removeDebtIncompleteDialogComponent } from './dialogs/dialogBundler.js';
 
 export default {
-  components: { removeDialogComponent, editDialogComponent, addDebtDialogComponent, removeDebtCompleteDialogComponent, removeDebtIncompleteDialogComponent },
+  components: {removeDialogComponent, editDialogComponent, addDebtDialogComponent, removeDebtCompleteDialogComponent, removeDebtIncompleteDialogComponent},
   name: "tabsComponent",
   mixins: [validationMixin],
 
