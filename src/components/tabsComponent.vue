@@ -47,33 +47,13 @@
             </template>
 
             <v-list>
-              <v-list-item>
+              <v-list-item v-for="pageAction in pageActions" :key="pageAction.action">
                 <v-btn 
-                  @click="showAddDebtDialogComponent = true"
+                  @click="dialogCaller(pageAction.dialog)"
                   width="100%"
                   >
-                  Add New Debt
+                  {{pageAction.action}}
                 </v-btn>
-              </v-list-item>
-
-              <v-list-item>
-                <v-btn
-                  width="100%"
-                  @click="showEditDialogComponent = true"
-                >Edit person</v-btn>
-              </v-list-item>
-
-              <v-list-item>
-                <v-btn
-                  width="100%"
-                  @click="showRemoveDialogComponent = true"
-                >Remove person</v-btn>
-              </v-list-item>
-
-              <v-list-item>
-                <v-btn
-                  width="100%"
-                >View Statistics</v-btn>
               </v-list-item>
             </v-list>
           </v-menu>
@@ -157,6 +137,8 @@ import {mapActions} from 'vuex';
 import { validationMixin } from 'vuelidate';
 import { required } from 'vuelidate/lib/validators';
 import { removeDialogComponent, editDialogComponent, addDebtDialogComponent, removeDebtCompleteDialogComponent, removeDebtIncompleteDialogComponent } from './dialogs/dialogBundler.js';
+// import { app } from '../main'
+// import Vue from 'vue'
 
 export default {
   components: {removeDialogComponent, editDialogComponent, addDebtDialogComponent, removeDebtCompleteDialogComponent, removeDebtIncompleteDialogComponent},
@@ -194,6 +176,7 @@ export default {
       showAddDebtDialogComponent: false,
       removeDebtCompleteDialogComponent: false,
       removeDebtIncompleteDialogComponent: false,
+      
     }),
 
 
@@ -205,7 +188,14 @@ export default {
         return errors
     },
 
-
+    pageActions(){
+      return [
+            {action: 'Add New Debt', dialog: 'showAddDebtDialogComponent'},
+            {action: 'Edit Person', dialog: 'showEditDialogComponent'},
+            {action: 'Remove Person', dialog: 'showRemoveDialogComponent'},
+            {action: 'View Statistics', dialog: 'tobeImplemented'}
+          ]
+    },
 
     ppl(){
       return this.$store.state.ppl;
@@ -261,11 +251,10 @@ export default {
     debtsFiltered (someone) {
         return this.$store.state.debts.filter(debt => debt.page == someone)
       },
+    dialogCaller(dialog){
+      this[dialog] = true
+    }
 
-
-
-
-    
   }
 };
 </script>
