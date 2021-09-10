@@ -1,20 +1,13 @@
 <template>
   <div class="d-flex flex-column align-center" ><!-- <div :class="width"> -->
     
-
-
     <v-tabs  show-arrows >
-      
       <v-tab v-for="someone in ppl" :key="someone.uniqueIdentifier">
         <v-icon left >
           mdi-account
         </v-icon>
         {{someone.name}}
       </v-tab>
-      
-
-
-
 
       <v-tab-item v-for="someone in ppl" :key="someone.uniqueIdentifier">
         <v-card flat :class="isVertical ? 'd-flex' : 'd-flex flex-column'">
@@ -23,35 +16,19 @@
             class="white--text align-end"
             gradient="to bottom, rgba(0,0,0,.1), rgba(0,0,0,.5)"
             :height="dynamicTabStyle"
-
             :width="dynamicWidth"
           >
 
-
-          <v-menu
-            bottom
-            left
-            transition="slide-x-transition"
-          >
+          <v-menu bottom left transition="slide-x-transition">
             <template v-slot:activator="{ on }">
-              <v-btn
-                dark
-                icon
-                v-on="on"
-                top
-                absolute
-                right
-              >
+              <v-btn dark icon v-on="on" top absolute right>
                 <v-icon>mdi-dots-vertical</v-icon>
               </v-btn>
             </template>
 
             <v-list>
               <v-list-item v-for="pageAction in pageActions" :key="pageAction.action">
-                <v-btn 
-                  @click="dialogCaller(pageAction.dialog)"
-                  width="100%"
-                  >
+                <v-btn width="100%" @click="dialogCaller(pageAction.dialog)">
                   {{pageAction.action}}
                 </v-btn>
               </v-list-item>
@@ -62,9 +39,6 @@
           
           </v-img> 
           <v-expansion-panels :style="dynamicStyle">
-
-            
-
               <v-expansion-panel v-for="debt in debtsFiltered(someone.name)" :key="debt.id">
                 <v-expansion-panel-header class="pa-5 grey--text" color="light-green lighten-5">
                   <div class="d-flex justify-space-between pa-2">
@@ -74,40 +48,28 @@
                 </v-expansion-panel-header>
                 <v-expansion-panel-content :id="'id'+debt.uniqueIdentifier" class="marker4ID">
                   
-                  <v-btn 
-                    color="warning" 
-                    dark 
-                    class="ma-5"
+                  <v-btn color="warning" dark class="ma-5" 
                     @click="($event)=>{
                         removeDebtIncompleteDialogComponent = true
                         eventObj = $event
                       }"
-                    >
+                  >
                     <span class="mr-2">Payback (incomplete)</span>
                     <v-icon>mdi-cash</v-icon>
                   </v-btn>
                   
-                    
-                  <v-btn 
-                  color="success" 
-                  dark 
-                  class="ma-5"
-                  @click="($event)=>{
-                      removeDebtCompleteDialogComponent = true
-                      eventObj = $event
-                    }"
+                  <v-btn color="success" dark class="ma-5"
+                    @click="($event)=>{
+                        removeDebtCompleteDialogComponent = true
+                        eventObj = $event
+                      }"
                   >
                     <span class="mr-2">Complete Payback</span>
                     <v-icon>mdi-cash-check</v-icon>
                   </v-btn>
-                  <v-tooltip
-                    top
-                  >
+                  <v-tooltip top>
                     <template v-slot:activator="{ on }">
-                      <v-btn
-                        icon
-                        v-on="on"
-                      >
+                      <v-btn icon v-on="on">
                         <v-icon color="grey lighten-1">
                           mdi-information
                         </v-icon>
@@ -120,7 +82,6 @@
             </v-expansion-panels>
         </v-card>
       </v-tab-item>
-      
     </v-tabs>
     <!-- DIALOGS -->
       <remove-debt-complete-dialog-component :visible="removeDebtCompleteDialogComponent" :eventObj="eventObj" @close="removeDebtCompleteDialogComponent=false"/>
@@ -137,8 +98,7 @@ import {mapActions} from 'vuex';
 import { validationMixin } from 'vuelidate';
 import { required } from 'vuelidate/lib/validators';
 import { removeDialogComponent, editDialogComponent, addDebtDialogComponent, removeDebtCompleteDialogComponent, removeDebtIncompleteDialogComponent } from './dialogs/dialogBundler.js';
-// import { app } from '../main'
-// import Vue from 'vue'
+
 
 export default {
   components: {removeDialogComponent, editDialogComponent, addDebtDialogComponent, removeDebtCompleteDialogComponent, removeDebtIncompleteDialogComponent},
@@ -241,8 +201,6 @@ export default {
     }
   },
 
-  watch: {},
-
   methods: {
     ...mapActions([
       'removePage',
@@ -251,10 +209,10 @@ export default {
     debtsFiltered (someone) {
         return this.$store.state.debts.filter(debt => debt.page == someone)
       },
+
     dialogCaller(dialog){
       this[dialog] = true
     }
-
   }
 };
 </script>
